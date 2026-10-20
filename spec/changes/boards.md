@@ -8,7 +8,8 @@ created with an empty title, which is set right after creation.
 - User
   - id
   - name: non-empty, unique; the Bearer token of the user's requests
-  - A user named `demo` always exists; there is no way to create users.
+  - Users named `demo` and `other` always exist; there is no way to
+    create users.
 - Board
   - id
   - title
@@ -140,7 +141,7 @@ The frontend acts as the user `demo`.
 ### Board screen, `/boards/{id}`
 
 - Shows the board's title, then its columns side by side, each with its
-  cards stacked.
+  cards stacked (layout not testable).
 - An icon button labelled "Add column" creates a column in the board.
 - In each column, an icon button labelled "Add card" creates a card in
   that column.
@@ -155,3 +156,10 @@ The frontend acts as the user `demo`.
 ## Technical
 
 - `ts_vue`: Vue Router for the two screens.
+- Every backend's `run` target accepts `TEMP_STORAGE=1`: the backend
+  starts with storage holding only the seeded users, and discards it
+  when it stops. The root runner uses it for the shared suites.
+- The shared suites never assume an empty storage: they check only
+  what they created.
+- The Tests phase writes the shared suites; an implementation's own
+  unit tests are written during Implementation.

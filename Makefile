@@ -30,4 +30,5 @@ test-api:
 	scripts/with-backend.sh $(BACKEND) $(API_PORT) uv run --project tests/api pytest tests/api
 
 test-e2e:
+	cd tests/e2e && npx tsc -p .
 	cd tests/e2e && BACKEND=$(BACKEND) FRONTEND=$(FRONTEND) API_PORT=$(API_PORT) WEB_PORT=$(WEB_PORT) npx playwright test

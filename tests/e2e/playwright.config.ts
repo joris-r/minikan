@@ -7,13 +7,14 @@ const webPort = process.env.WEB_PORT ?? '5173'
 
 export default defineConfig({
   testDir: './tests',
+  workers: 1,
   use: {
     baseURL: `http://localhost:${webPort}`,
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {
-      command: `make -s -C ../../backends/${backend} run PORT=${apiPort}`,
+      command: `make -s -C ../../backends/${backend} run PORT=${apiPort} TEMP_STORAGE=1`,
       url: `http://localhost:${apiPort}/api/health`,
       reuseExistingServer: true,
     },

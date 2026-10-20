@@ -6,7 +6,7 @@ set -euo pipefail
 backend=$1 port=$2
 shift 2
 
-setsid make -s -C "backends/$backend" run PORT="$port" &
+setsid make -s -C "backends/$backend" run PORT="$port" TEMP_STORAGE=1 &
 pid=$!
 trap 'kill -- -$pid 2>/dev/null || true' EXIT
 

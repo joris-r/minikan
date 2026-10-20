@@ -3,7 +3,7 @@
 Updated only on the human's explicit decision.
 
 - Increment: boards
-- Phase: Tests
+- Phase: Implementation
 - Step: Exploration
 
 ## Scope of the current increment
