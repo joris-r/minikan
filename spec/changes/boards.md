@@ -156,7 +156,8 @@ The frontend acts as the user `demo`.
 ## Technical
 
 - Every frontend has a health screen, `/health`, showing the answer of
-  `GET /api/health` as `API: ok`. The other screens do not show it.
+  `GET /api/health` as `API: ok`. The other screens do not show it
+  (not testable).
 - `ts_vue`: Vue Router for the screens.
 - `py_litestar`: the schema is created at startup from the models,
   without migrations.

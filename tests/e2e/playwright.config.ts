@@ -17,6 +17,7 @@ export default defineConfig({
       command: `make -s -C ../../backends/${backend} run PORT=${apiPort} TEMP_STORAGE=1`,
       url: `http://localhost:${apiPort}/api/health`,
       reuseExistingServer: true,
+      gracefulShutdown: { signal: 'SIGTERM', timeout: 5000 },
     },
     {
       command: `MINIKAN_API_URL=http://localhost:${apiPort} make -s -C ../../frontends/${frontend} run PORT=${webPort}`,
