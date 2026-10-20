@@ -56,3 +56,42 @@ status on every screen.
 Proposal, in the Tests skill, where it requires a new test that
 already passes to be a legitimate negative check: add "or a positive
 check the existing code already meets; say why in the hand-over".
+
+## A backlog for candidates
+
+What happened: after Integration, the human noted that the backend
+could use Advanced Alchemy's repositories and services in place of the
+hand-written queries. The process has no place for such a point:
+`spec/` holds decisions, STATE the current position, and these notes
+the process itself. It stays in the human's memory.
+
+Proposal: a short `spec/BACKLOG.md` of candidate increments, one line
+each, added only with the human's approval. The agent reads it at the
+start of a Specification Exploration and may propose a scope from it.
+An entry is removed in the commit of the increment that does it. Any
+agent proposal the human does not take up right away goes there,
+rather than in a commit message or the agent's memory.
+
+Example of a first entry:
+
+- Backend `py_litestar`: use Advanced Alchemy repositories and
+  services instead of the hand-written queries.
+
+## An inactive state between increments
+
+What happened: after the Integration commit, STATE read
+Specification · Exploration, but the discussion that followed was about
+the process (cost, notes, backlog), not a new increment. The agent
+still applied the phase's constraints.
+
+Proposal: the Integration exit sets STATE to an inactive state instead
+of Specification · Exploration. While inactive, the agent is free of
+the process constraints. The next state is Specification · Exploration,
+when the human starts a new increment.
+
+Open points:
+
+- What the agent may change while inactive, e.g. anything, or nothing
+  in `spec/` and `tests/`.
+- How work done while inactive enters the process, e.g. reviewed at
+  the start of the next Specification.
