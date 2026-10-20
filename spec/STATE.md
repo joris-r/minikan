@@ -2,10 +2,9 @@
 
 Updated only on the human's explicit decision.
 
-- Increment: framing
-- Phase: Initial Framing
+- Increment:
+- Phase: Specification
 - Step: Exploration
 
 ## Scope of the current increment
 
-Set the stack, conventions and a running skeleton. No feature is delivered.
