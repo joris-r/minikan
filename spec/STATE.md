@@ -3,8 +3,9 @@
 Updated only on the human's explicit decision.
 
 - Increment: boards
-- Phase: Implementation
+- Phase: Tests
 - Step: Exploration
+- Return from Implementation: its work is stashed as "boards implementation, before return to Specification"; pop it when Implementation resumes.
 
 ## Scope of the current increment
 

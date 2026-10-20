@@ -155,7 +155,12 @@ The frontend acts as the user `demo`.
 
 ## Technical
 
-- `ts_vue`: Vue Router for the two screens.
+- Every frontend has a health screen, `/health`, showing the answer of
+  `GET /api/health` as `API: ok`. The other screens do not show it.
+- `ts_vue`: Vue Router for the screens.
+- `py_litestar`: the schema is created at startup from the models,
+  without migrations.
+- `py_litestar`: aiosqlite as the SQLite driver.
 - Every backend's `run` target accepts `TEMP_STORAGE=1`: the backend
   starts with storage holding only the seeded users, and discards it
   when it stops. The root runner uses it for the shared suites.
