@@ -1,19 +1,24 @@
-<script setup lang="ts">
-import { onMounted, ref } from 'vue'
-
-const apiStatus = ref('unknown')
-
-onMounted(async () => {
-  try {
-    const response = await fetch('/api/health')
-    apiStatus.value = response.ok ? (await response.json()).status : 'error'
-  } catch {
-    apiStatus.value = 'unreachable'
-  }
-})
-</script>
-
 <template>
-  <h1>minikan</h1>
-  <p>API: {{ apiStatus }}</p>
+  <header>
+    <RouterLink to="/">minikan</RouterLink>
+  </header>
+  <main>
+    <RouterView />
+  </main>
 </template>
+
+<style>
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+}
+
+header {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+main {
+  padding: 1rem;
+}
+</style>
