@@ -9,6 +9,9 @@
   - `tests/e2e/`: the end-to-end suite.
 - Every implementation provides a `Makefile` with the targets `setup`,
   `run` (honouring `PORT`) and `check` (lint, format check, unit tests).
+- Every backend's `run` target accepts `TEMP_STORAGE=1`: the backend
+  starts with storage holding only the seeded users, and discards it
+  when it stops. The root runner uses it for the shared suites.
 - The root `Makefile` runs any pair: `make check BACKEND=<dir> FRONTEND=<dir>`.
 - Everything runs locally and natively: no Docker, no remote CI.
 
@@ -26,8 +29,14 @@
   {"status": "ok"}
   ```
 
-- Identity: requests carry `Authorization: Bearer <token>`. For now the
-  token is the user's name, and it is not verified.
+- Every frontend has a health screen, `/health`, showing the answer of
+  the health check as `API: ok`. The other screens do not show it
+  (not testable).
+- Identity: every other request carries `Authorization: Bearer <token>`.
+  For now the token is the user's name, and it is not verified.
+- The frontends act as the user `demo`.
+- Error responses are JSON: `{"error": "<message>"}`.
+- 401: the `Authorization` header is missing or names no existing user.
 - Frontends call the API on their own origin under `/api`; in
   development their dev server proxies it to the backend at
   `MINIKAN_API_URL`.
@@ -40,9 +49,11 @@
 ## Implementations
 
 - `py_litestar`: Python 3.14, Litestar, SQLite, uv, ruff, pytest.
-  Database access through SQLAlchemy (Advanced Alchemy).
+  Database access through SQLAlchemy (Advanced Alchemy), with
+  aiosqlite. The schema is created at startup from the models, without
+  migrations.
 - `ts_vue`: TypeScript, Vue 3, Vite, npm, ESLint with oxlint, Prettier,
-  Vitest.
+  Vitest, Vue Router.
 
 ## Tests and quality
 
@@ -52,6 +63,10 @@
     `MINIKAN_API_URL`.
   - `tests/e2e`: TypeScript and Playwright (Chromium), against a
     frontend wired to a backend.
+- The shared suites never assume an empty storage: they check only
+  what they created.
+- The Tests phase writes the shared suites; an implementation's own
+  unit tests are written during Implementation.
 - An implementation is complete when it passes both shared suites.
 - Each implementation has its own unit tests for its internals, in the
   idiom of its stack.
