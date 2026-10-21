@@ -52,6 +52,20 @@
   Database access through SQLAlchemy (Advanced Alchemy), with
   aiosqlite. The schema is created at startup from the models, without
   migrations.
+  - Database access goes through one Advanced Alchemy service per
+    model (`SQLAlchemyAsyncRepositoryService`, with its repository),
+    injected with `create_service_provider`.
+  - Routes are grouped in one Litestar `Controller` per resource.
+  - Modules, by domain:
+
+    ```
+    src/minikan/
+      app.py        # assembles the app: plugins, routers, error handlers, startup
+      db.py         # database configuration, temporary storage, schema and seeded users
+      models.py
+      accounts/     # User: service, current user dependency
+      boards/       # Board, Column, Card: services, controllers
+    ```
 - `ts_vue`: TypeScript, Vue 3, Vite, npm, ESLint with oxlint, Prettier,
   Vitest, Vue Router.
 

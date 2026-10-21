@@ -168,3 +168,18 @@ records that they must act on it.
   `[idle] <subject>`. Never commit at any other time.
 - On a return from Implementation, its uncommitted work is stashed
   until Implementation resumes (see the Implementation skill).
+
+# Project rules
+
+These rules are specific to this project, outside the Dev43 process.
+
+## Learning
+
+The goal of the project is learning, more than the kanban itself.
+
+- In the hand-over of Implementation, add a short "Going further"
+  section: two or three leads drawn from the actual work, never
+  generic, e.g. a concept or pattern at play (Data Mapper vs Active
+  Record), or a quality or security point worth examining. The human
+  picks one or none; nothing is committed and the gate does not depend
+  on it.
