@@ -25,3 +25,7 @@ make check                  # every check and test suite
 
 Pick a pair with `BACKEND=<dir> FRONTEND=<dir>`, e.g.
 `make check BACKEND=py_litestar FRONTEND=ts_vue`.
+
+## License
+
+MIT, see [LICENSE](LICENSE).

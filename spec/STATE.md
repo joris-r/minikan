@@ -3,7 +3,7 @@
 Updated only on the human's explicit decision.
 
 - Increment:
-- Phase: Specification
-- Step: Exploration
+- Phase: Idle
+- Step:
 
 ## Scope of the current increment
