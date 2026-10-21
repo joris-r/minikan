@@ -2,7 +2,7 @@ import pytest
 from litestar.exceptions import NotFoundException
 from litestar.testing import TestClient
 
-from minikan.app import _parse_id, app
+from minikan.app import app
 
 
 def test_health() -> None:
@@ -40,5 +40,7 @@ def test_an_unknown_route_answers_a_json_error() -> None:
 
 
 def test_parse_id_rejects_a_malformed_id_as_not_found() -> None:
+    from minikan.boards.controllers import parse_id
+
     with pytest.raises(NotFoundException):
-        _parse_id("42")
+        parse_id("42")

@@ -2,7 +2,8 @@
 
 The `py_litestar` backend is restructured with Advanced Alchemy
 services and Litestar controllers, split into modules by domain. The
-behavior and the API are unchanged.
+behavior and the API are unchanged: the shared suites pass unmodified.
+The structure itself is not testable.
 
 ## Technical
 
