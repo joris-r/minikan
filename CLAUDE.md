@@ -19,17 +19,19 @@ would care.
 - Never advance the step or phase yourself, except from Production to
   Verification at your hand-over. You may say a step looks complete;
   only the human decides.
-- A plain approval with no change request ("ok", "agree", "go") is the
-  human's decision to pass the gate in front of you. Say in your reply
-  which gate you passed:
+- The human passes the gate in front of you with one word: `next`.
+  Anything else ("ok", "yes", "proceed", "nice") is discussion: answer
+  it and do not move. When you propose to pass a gate, end your message
+  with what `next` will do, e.g. "`next`: end Exploration, start
+  Production." The gates:
   - in Exploration, after you proposed to end it: Exploration is over,
     start Production;
   - in Verification, once the checks pass and no tag remains: the
-    review is approved and the human gives the go for the exit commit.
+    review is approved, make the exit commit.
 - Production ends when you hand over. First run the checks of the
   phase (see its skill) and fix what fails: the human reviews only work
-  that passes them. Then mark new files with `git add -N .` (see Git),
-  set Step to Verification in STATE, and hand over with the check
+  that passes them. Then set Step to Verification in STATE, and hand
+  over with the check
   results and your tags (file and line), with one line on each saying
   why.
 - Verification: the human reviews. They rule on each tag or edit the
@@ -39,6 +41,12 @@ would care.
 - If you meet a major decision that calls into question what was agreed,
   stop working, explain it, and propose a return to Exploration. Never
   work around it. If the human agrees, set Step to Exploration in STATE.
+- Between increments, Phase is Idle and no step applies; your messages
+  start with `[Idle]`. You may discuss, edit `spec/BACKLOG.md`, and
+  change tooling or configuration when asked. Never change product
+  code, `spec/main/` or tests: a change of behavior is an increment.
+  When the human starts an increment, set Phase to Specification and
+  Step to Exploration.
 
 ## Tags
 
@@ -105,6 +113,12 @@ records that they must act on it.
     one page per feature area, named with the human.
   - `spec/changes/<slug>.md`: the change specification of the current
     increment, one page.
+  - `spec/BACKLOG.md`: candidate increments, one short line each, that
+    the human can read in seconds, e.g. "Backend: Litestar SQLAlchemy
+    repositories would shrink the hand-written queries." Add an entry
+    only with the human's approval. An idea of yours they do not take
+    up right away: propose it as an entry, never leave it in your
+    memory or a commit message.
 
 ## Tests and code
 
@@ -139,16 +153,18 @@ records that they must act on it.
 
 ## Git
 
-- The project is a git repository. Use it: `git diff` is what remains
-  to review, `git diff --cached` what the human has already reviewed,
-  `git diff HEAD` the work of the current phase, `git log` the history.
+- The project is a git repository. Use it: `git diff` and untracked
+  files are what remains to review, `git diff --cached` what the human
+  has already reviewed, `git diff HEAD` the work of the current phase,
+  `git log` the history.
 - The index belongs to the human, who stages each file or hunk once
-  read. Never stage, except: at the end of Production, mark new files
-  with `git add -N .` so they show in `git diff`; and at the exit
-  commit.
-- Commit only at the end of a phase, on the human's go, after updating
+  read. Never stage, except at the exit commit.
+- Commit only at the end of a phase, on `next`, after updating
   STATE: `git add -A`, then commit as `[<increment>] <phase>`,
   with a short body giving the reasons for the phase's main decisions.
   A phase done again after a return ends its subject with ` (return)`.
-  The only other commit is an Amendment during Implementation (see its
-  skill). Never commit at any other time.
+  The only other commits are an Amendment during Implementation (see
+  its skill) and, while Idle, a commit the human asks for, as
+  `[idle] <subject>`. Never commit at any other time.
+- On a return from Implementation, its uncommitted work is stashed
+  until Implementation resumes (see the Implementation skill).
