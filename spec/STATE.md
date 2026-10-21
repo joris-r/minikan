@@ -2,8 +2,13 @@
 
 Updated only on the human's explicit decision.
 
-- Increment:
-- Phase: Idle
-- Step:
+- Increment: litestar-layers
+- Phase: Tests
+- Step: Exploration
 
 ## Scope of the current increment
+
+Restructure the `py_litestar` backend, without changing its behavior:
+Advanced Alchemy repositories and services, Litestar controllers, code
+split into modules; `app.py` only assembles the app. Configuration is
+not split further.
