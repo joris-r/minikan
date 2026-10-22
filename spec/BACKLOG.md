@@ -11,6 +11,7 @@ representative kanban core, then add other backends and frontends.
 - Real-time updates between clients viewing the same board (needs sharing).
 - Card description and tags, with filtering by tag.
 - Import and export of a board in a todo.txt-like format, with a section per column.
-- Backend py_litestar: Litestar DTOs (`SQLAlchemyDTO`) would replace the hand-built response dicts and `TitleIn`.
 - Backend py_litestar: services scoped to the current user (provider `statement`) would filter every query by owner, instead of each handler calling `get_owned`.
+- Storage: whether to enforce title length in the database too (a SQLite `CHECK`), not only in the API.
+- API contract: a shared OpenAPI file, checked against every backend, would generate the frontends' types.
 - Tests: property-based tests (Hypothesis) would check rules such as R2 as invariants over generated sequences of API calls.
