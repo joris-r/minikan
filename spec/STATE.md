@@ -3,7 +3,7 @@
 Updated only on the human's explicit decision.
 
 - Increment: litestar-typed-bodies
-- Phase: Implementation
+- Phase: Integration
 - Step: Exploration
 
 ## Scope of the current increment
