@@ -14,7 +14,7 @@ async function openBoard(page: Page): Promise<Record<string, string>> {
 }
 
 for (const name of ['board', 'column', 'card']) {
-  test.describe(`Editing a title: renaming a ${name}`, () => {
+  test.describe(`Title input: renaming a ${name}`, () => {
     test('clicking the title shows a focused input holding it', async ({ page }) => {
       const before = (await openBoard(page))[name]
 

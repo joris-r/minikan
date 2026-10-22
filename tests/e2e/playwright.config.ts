@@ -8,6 +8,7 @@ const webPort = process.env.WEB_PORT ?? '5173'
 export default defineConfig({
   testDir: './tests',
   workers: 1,
+  timeout: 10_000,
   use: {
     baseURL: `http://localhost:${webPort}`,
   },
