@@ -56,6 +56,9 @@
     model (`SQLAlchemyAsyncRepositoryService`, with its repository),
     injected with `create_service_provider`.
   - Routes are grouped in one Litestar `Controller` per resource.
+  - Request and response bodies are `msgspec.Struct` types declared in
+    the controllers' modules; handlers declare them as their parameter
+    and return types, never dicts.
   - Modules, by domain:
 
     ```
