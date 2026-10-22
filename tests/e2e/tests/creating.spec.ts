@@ -96,4 +96,26 @@ for (const { name, open } of entities) {
       await expect(untitled).toHaveCount(before + 1)
     })
   })
+
+  test.describe(`R4: creating a ${name}`, () => {
+    test('Escape keeps the empty title and sends no request', async ({ page }) => {
+      const label = await open(page)
+      const untitled = page.getByText('(Untitled)', { exact: true })
+      const before = await untitled.count()
+      const patches: string[] = []
+      page.on('request', (request) => {
+        if (request.method() === 'PATCH') patches.push(request.url())
+      })
+      await page.getByRole('button', { name: label }).click()
+
+      await page.getByRole('textbox').fill(uniqueTitle())
+      await page.getByRole('textbox').press('Escape')
+
+      await expect(page.getByRole('textbox')).toHaveCount(0)
+      await expect(untitled).toHaveCount(before + 1)
+      await page.reload()
+      await expect(untitled).toHaveCount(before + 1)
+      expect(patches).toEqual([])
+    })
+  })
 }
