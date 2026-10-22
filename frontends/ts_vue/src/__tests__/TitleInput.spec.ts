@@ -21,4 +21,21 @@ describe('TitleInput', () => {
 
     expect(wrapper.emitted('record')).toEqual([['']])
   })
+
+  it('starts with the given title', () => {
+    const wrapper = mount(TitleInput, { props: { title: 'Roadmap' } })
+
+    expect(wrapper.find('input').element.value).toBe('Roadmap')
+  })
+
+  it('cancels on Escape, without recording on the following blur', async () => {
+    const wrapper = mount(TitleInput, { props: { title: 'Roadmap' } })
+
+    await wrapper.find('input').setValue('Doing')
+    await wrapper.find('input').trigger('keydown', { key: 'Escape' })
+    await wrapper.find('input').trigger('blur')
+
+    expect(wrapper.emitted('cancel')).toEqual([[]])
+    expect(wrapper.emitted('record')).toBeUndefined()
+  })
 })

@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import { api, type Board, type Column, type Item } from '../api'
 import AddButton from '../components/AddButton.vue'
 import TitleInput from '../components/TitleInput.vue'
-import TitleText from '../components/TitleText.vue'
+import TitleButton from '../components/TitleButton.vue'
 
 const props = defineProps<{ id: string }>()
 
@@ -26,31 +26,44 @@ async function addCard(column: Column) {
   editing.value = card.id
 }
 
+// Editing ends before the request, so that a title clicked meanwhile stays in editing.
 async function record(item: Item, title: string, setTitle: typeof api.setColumnTitle) {
-  item.title = (await setTitle(item.id, title)).title
   editing.value = undefined
+  item.title = (await setTitle(item.id, title)).title
 }
 </script>
 
 <template>
   <template v-if="board">
-    <h1><TitleText :title="board.title" /></h1>
+    <h1>
+      <TitleInput
+        v-if="editing === board.id"
+        :title="board.title"
+        @record="record(board, $event, api.setBoardTitle)"
+        @cancel="editing = undefined"
+      />
+      <TitleButton v-else :title="board.title" @click="editing = board.id" />
+    </h1>
     <div class="columns">
       <section v-for="column in board.columns" :key="column.id" class="column">
         <h2>
           <TitleInput
             v-if="editing === column.id"
+            :title="column.title"
             @record="record(column, $event, api.setColumnTitle)"
+            @cancel="editing = undefined"
           />
-          <TitleText v-else :title="column.title" />
+          <TitleButton v-else :title="column.title" @click="editing = column.id" />
         </h2>
         <ul class="cards">
           <li v-for="card in column.cards" :key="card.id" class="card">
             <TitleInput
               v-if="editing === card.id"
+              :title="card.title"
               @record="record(card, $event, api.setCardTitle)"
+              @cancel="editing = undefined"
             />
-            <TitleText v-else :title="card.title" />
+            <TitleButton v-else :title="card.title" @click="editing = card.id" />
           </li>
         </ul>
         <AddButton label="Add card" @click="addCard(column)" />

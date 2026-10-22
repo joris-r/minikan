@@ -28,7 +28,11 @@ async function record(board: Item, title: string) {
   <h1>Boards</h1>
   <ul class="boards">
     <li v-for="board in boards" :key="board.id">
-      <TitleInput v-if="editing === board.id" @record="record(board, $event)" />
+      <TitleInput
+        v-if="editing === board.id"
+        @record="record(board, $event)"
+        @cancel="editing = undefined"
+      />
       <RouterLink v-else :to="`/boards/${board.id}`"><TitleText :title="board.title" /></RouterLink>
     </li>
   </ul>
