@@ -4,6 +4,8 @@ Strategy: grow features on the `py_litestar` / `ts_vue` pair up to a
 representative kanban core, then add other backends and frontends.
 
 - Ordering and moving of columns and cards.
+- UI: moving columns and cards from the keyboard, as drag and drop is mouse-only.
+- UI: a "Move to column" action in a card's menu, for boards with many columns.
 - Real authentication, replacing the user name as token.
 - Sharing boards between users.
 - Real-time updates between clients viewing the same board (needs sharing).
