@@ -2,8 +2,10 @@ import { defineConfig, devices } from '@playwright/test'
 
 const backend = process.env.BACKEND ?? 'py_litestar'
 const frontend = process.env.FRONTEND ?? 'ts_vue'
-const apiPort = process.env.API_PORT ?? '8000'
-const webPort = process.env.WEB_PORT ?? '5173'
+const apiPort = process.env.API_PORT ?? '8001'
+const webPort = process.env.WEB_PORT ?? '5174'
+// Read by the tests' own API client.
+process.env.API_PORT = apiPort
 
 export default defineConfig({
   testDir: './tests',
@@ -17,13 +19,13 @@ export default defineConfig({
     {
       command: `make -s -C ../../backends/${backend} run PORT=${apiPort} TEMP_STORAGE=1`,
       url: `http://localhost:${apiPort}/api/health`,
-      reuseExistingServer: true,
+      reuseExistingServer: false,
       gracefulShutdown: { signal: 'SIGTERM', timeout: 5000 },
     },
     {
       command: `MINIKAN_API_URL=http://localhost:${apiPort} make -s -C ../../frontends/${frontend} run PORT=${webPort}`,
       url: `http://localhost:${webPort}`,
-      reuseExistingServer: true,
+      reuseExistingServer: false,
     },
   ],
 })

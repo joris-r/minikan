@@ -6,6 +6,11 @@ set -euo pipefail
 backend=$1 port=$2
 shift 2
 
+if curl -s "http://localhost:$port" >/dev/null; then
+  echo "Port $port is already in use: stop the server running there." >&2
+  exit 1
+fi
+
 setsid make -s -C "backends/$backend" run PORT="$port" TEMP_STORAGE=1 &
 pid=$!
 trap 'kill -- -$pid 2>/dev/null || true' EXIT
