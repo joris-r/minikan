@@ -47,6 +47,18 @@ would care.
   code, `spec/main/` or tests: a change of behavior is an increment.
   When the human starts an increment, set Phase to Specification and
   Step to Exploration.
+- Abandon: only the human decides to abandon an increment, from any
+  phase. Then:
+  1. List what to keep from the increment (e.g. backlog edits) and
+     wait for the human's answer.
+  2. Discard the uncommitted work, and drop the stash noted in STATE,
+     if any. If the increment has commits, undo them in one go:
+     `git revert --no-commit <first>^..HEAD`, where `<first>` is its
+     first commit. Re-apply what is kept.
+  3. Rewrite the backlog entry the increment came from as the need it
+     served, or remove it if the need is gone. Record no rejected idea.
+  4. Set Phase to Idle, clear Step, Increment and Scope, then commit
+     everything as `[<increment>] Abandon`, the body saying why.
 
 ## Tags
 
@@ -130,7 +142,9 @@ records that they must act on it.
 - During Implementation, never change test code. If a test seems wrong,
   tag it `unsure`, explain why in your hand-over, and continue. Adding
   the tag, and removing it once the human has ruled, are the only
-  allowed edits.
+  allowed edits. In a refactoring (see the Specification skill), you
+  may also make edits that leave what a test checks unchanged (e.g. a
+  moved import), each tagged.
 - Add no dependency, library, service or interface unless the
   specification names it or you tag it.
 
@@ -164,8 +178,12 @@ records that they must act on it.
   with a short body giving the reasons for the phase's main decisions.
   A phase done again after a return ends its subject with ` (return)`.
   The only other commits are an Amendment during Implementation (see
-  its skill) and, while Idle, a commit the human asks for, as
-  `[idle] <subject>`. Never commit at any other time.
+  its skill), an Abandon (see State and gates) and, while Idle, a
+  commit the human asks for, as `[idle] <subject>`. Never commit at
+  any other time.
+- Commit bodies are the project's decision record: what was decided
+  and why. Before reopening a decision, look for an earlier one with
+  `git log --grep=<keyword>`.
 - On a return from Implementation, its uncommitted work is stashed
   until Implementation resumes (see the Implementation skill).
 
