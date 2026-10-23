@@ -33,4 +33,8 @@ export const api = {
   deleteBoard: (id: string) => request<void>('DELETE', `/boards/${id}`),
   deleteColumn: (id: string) => request<void>('DELETE', `/columns/${id}`),
   deleteCard: (id: string) => request<void>('DELETE', `/cards/${id}`),
+  moveColumn: (id: string, position: number) =>
+    request<void>('POST', `/columns/${id}/move`, { position }),
+  moveCard: (id: string, columnId: string, position: number) =>
+    request<void>('POST', `/cards/${id}/move`, { columnId, position }),
 }

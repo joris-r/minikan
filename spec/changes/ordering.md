@@ -86,6 +86,11 @@ New section, after "Board screen":
 
 ## Technical
 
+Added to `py_litestar`:
+
+- The order is stored as an integer position, kept by SQLAlchemy's
+  `ordering_list` on `Board.columns` and `Column.cards`.
+
 Added to `ts_vue`:
 
 - Drag and drop uses the native HTML drag and drop API, without a

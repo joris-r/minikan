@@ -13,6 +13,8 @@ const props = defineProps<{ id: string }>()
 const router = useRouter()
 const board = ref<Board>()
 const editing = ref<string>()
+// The column or card being dragged, if any.
+const dragged = ref<{ column: Column } | { card: Item; from: Column }>()
 // The deletion waiting for confirmation, if any.
 const confirming = ref<{ message: string; run: () => Promise<void> }>()
 
@@ -61,6 +63,49 @@ async function deleteCard(column: Column, card: Item) {
   column.cards = column.cards.filter((c) => c.id !== card.id)
 }
 
+// Moves `item` from `source` into `target`, possibly the same list, at a position counted from 1,
+// as the API does.
+function place<T>(source: T[], target: T[], item: T, position: number) {
+  source.splice(source.indexOf(item), 1)
+  target.splice(Math.min(Math.max(position, 1), target.length + 1) - 1, 0, item)
+}
+
+function startDrag(event: DragEvent, item: NonNullable<typeof dragged.value>) {
+  event.stopPropagation()
+  event.dataTransfer?.setData('text/plain', '')
+  dragged.value = item
+}
+
+// A column takes the position of the column it is dropped onto; a card dropped onto a column,
+// outside its cards, goes last.
+async function dropOnColumn(board: Board, column: Column) {
+  const item = dragged.value
+  dragged.value = undefined
+  if (item && 'column' in item) {
+    if (item.column === column) return
+    const position = board.columns.indexOf(column) + 1
+    place(board.columns, board.columns, item.column, position)
+    await api.moveColumn(item.column.id, position)
+  } else if (item) {
+    const position = column.cards.length + 1
+    place(item.from.cards, column.cards, item.card, position)
+    await api.moveCard(item.card.id, column.id, position)
+  }
+}
+
+// A card takes the position of the card it is dropped onto. A column dropped onto a card is left
+// to the card's column.
+async function dropOnCard(event: DragEvent, column: Column, card: Item) {
+  const item = dragged.value
+  if (!item || !('card' in item)) return
+  event.stopPropagation()
+  dragged.value = undefined
+  if (item.card === card) return
+  const position = column.cards.indexOf(card) + 1
+  place(item.from.cards, column.cards, item.card, position)
+  await api.moveCard(item.card.id, column.id, position)
+}
+
 // Editing ends before the request, so that a title clicked meanwhile stays in editing.
 async function record(item: Item, title: string, setTitle: typeof api.setColumnTitle) {
   editing.value = undefined
@@ -88,6 +133,11 @@ async function record(item: Item, title: string, setTitle: typeof api.setColumnT
         :key="column.id"
         class="column"
         :aria-labelledby="`title-${column.id}`"
+        :draggable="editing === undefined"
+        @dragstart="startDrag($event, { column })"
+        @dragend="dragged = undefined"
+        @dragover="dragged && $event.preventDefault()"
+        @drop="dropOnColumn(board, column)"
       >
         <div class="header">
           <h2 :id="`title-${column.id}`">
@@ -103,7 +153,14 @@ async function record(item: Item, title: string, setTitle: typeof api.setColumnT
         </div>
         <ul class="cards">
           <li v-for="card in column.cards" :key="card.id">
-            <article class="card header" :aria-labelledby="`title-${card.id}`">
+            <article
+              class="card header"
+              :aria-labelledby="`title-${card.id}`"
+              :draggable="editing === undefined"
+              @dragstart="startDrag($event, { card, from: column })"
+              @dragend="dragged = undefined"
+              @drop="dropOnCard($event, column, card)"
+            >
               <span :id="`title-${card.id}`">
                 <TitleInput
                   v-if="editing === card.id"
@@ -165,6 +222,10 @@ async function record(item: Item, title: string, setTitle: typeof api.setColumnT
   list-style: none;
   padding: 0;
   margin: 0 0 0.5rem;
+}
+
+[draggable='true'] {
+  cursor: grab;
 }
 
 .card {

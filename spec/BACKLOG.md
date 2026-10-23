@@ -14,5 +14,7 @@ representative kanban core, then add other backends and frontends.
 - Backend py_litestar: services scoped to the current user (provider `statement`) would filter every query by owner, instead of each handler calling `get_owned`.
 - Storage: migrations (Alembic, through Advanced Alchemy), so a schema change reaches an existing database.
 - Storage: whether to enforce title length in the database too (a SQLite `CHECK`), not only in the API.
+- API contract: decide whether the shared suites define all behavior or a minimum (e.g. lax `"1"` for an integer).
 - API contract: a shared OpenAPI file, checked against every backend, would generate the frontends' types.
+- Frontend ts_vue: failed API requests are unhandled (e2e logs a Vue warning when a reload aborts a title PATCH).
 - Tests: property-based tests (Hypothesis) would check rules such as R2 as invariants over generated sequences of API calls.
