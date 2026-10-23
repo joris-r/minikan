@@ -12,10 +12,13 @@ ENDPOINTS = [
     ("POST", "/api/boards"),
     ("GET", "/api/boards/{board}"),
     ("PATCH", "/api/boards/{board}"),
+    ("DELETE", "/api/boards/{board}"),
     ("POST", "/api/boards/{board}/columns"),
     ("PATCH", "/api/columns/{column}"),
+    ("DELETE", "/api/columns/{column}"),
     ("POST", "/api/columns/{column}/cards"),
     ("PATCH", "/api/cards/{card}"),
+    ("DELETE", "/api/cards/{card}"),
 ]
 
 WITH_ID = [e for e in ENDPOINTS if "{" in e[1]]

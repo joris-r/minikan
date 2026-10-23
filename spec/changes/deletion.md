@@ -29,13 +29,15 @@ New section, after "Board screen":
 
 ## Actions menu
 
-- Each board on the boards screen, the board's title on the board
-  screen, and each column and card have an icon button labelled
-  "Actions", which opens a menu. Its only item is "Delete".
+- Each board on the boards screen, and the board, each column and each
+  card on the board screen, is an article (ARIA role) named by its
+  title.
+- Each of these articles has, right after its title, an icon button
+  labelled "Actions", which opens a menu. Its only item is "Delete".
 - R6: Deleting a board or column that holds a column or card first
   opens a modal dialog with the buttons "Delete" and "Cancel"; only
   "Delete" deletes it. An empty board or column, and a card, are
-  deleted at once.
+  deleted at once. (modal not testable)
 - A deleted item disappears from the screen. Deleting the board shown
   on the board screen goes to the boards screen.
 
