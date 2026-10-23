@@ -70,7 +70,8 @@ Added:
 
 Added:
 
-- Columns are shown in order, left to right, and cards top to bottom.
+- Columns are shown in order, left to right, and cards top to bottom
+  (layout not testable).
 
 New section, after "Board screen":
 

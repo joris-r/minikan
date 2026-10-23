@@ -19,6 +19,8 @@ ENDPOINTS = [
     ("POST", "/api/columns/{column}/cards"),
     ("PATCH", "/api/cards/{card}"),
     ("DELETE", "/api/cards/{card}"),
+    ("POST", "/api/columns/{column}/move"),
+    ("POST", "/api/cards/{card}/move"),
 ]
 
 WITH_ID = [e for e in ENDPOINTS if "{" in e[1]]
@@ -31,7 +33,13 @@ def _request(
     ids: dict[str, str],
     headers: dict[str, str] | None = None,
 ) -> httpx.Response:
-    body = {"title": "Doing"} if method == "PATCH" else None
+    body = None
+    if method == "PATCH":
+        body = {"title": "Doing"}
+    elif path == "/api/columns/{column}/move":
+        body = {"position": 1}
+    elif path == "/api/cards/{card}/move":
+        body = {"columnId": ids["column"], "position": 1}
     return client.request(method, path.format(**ids), json=body, headers=headers)
 
 

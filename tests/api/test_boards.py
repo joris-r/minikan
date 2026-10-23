@@ -67,13 +67,13 @@ class TestGetBoard:
         assert body["id"] == board["id"]
         assert body["title"] == "Roadmap"
         assert list(body) == ["id", "title", "columns"]
-        assert sorted(body["columns"], key=lambda c: c["title"]) == [
-            {"id": done["id"], "title": "Done", "cards": []},
+        assert body["columns"] == [
             {
                 "id": todo["id"],
                 "title": "To do",
                 "cards": [{"id": card["id"], "title": "Write the spec"}],
             },
+            {"id": done["id"], "title": "Done", "cards": []},
         ]
 
     def test_a_new_board_has_no_columns(self, demo: httpx.Client) -> None:
