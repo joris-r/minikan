@@ -11,11 +11,20 @@ be changed later, and they can be deleted.
 
 ## Board screen, `/boards/{id}`
 
-- Shows the board's title, then its columns side by side, each with its
-  cards stacked (layout not testable).
+- Shows the board's title, then its columns in order, left to right,
+  each with its cards in order, top to bottom (layout not testable).
 - An icon button labelled "Add column" creates a column in the board.
 - In each column, an icon button labelled "Add card" creates a card in
   that column.
+
+## Drag and drop
+
+- A column or a card is moved by dragging it.
+- A column dropped onto another column, or a card dropped onto another
+  card, takes that element's position.
+- A card dropped onto a column, outside its cards, is placed last in
+  that column.
+- The new order is shown at once and kept after a reload.
 
 ## Actions menu
 

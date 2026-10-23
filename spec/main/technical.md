@@ -59,6 +59,9 @@
   - Request and response bodies are `msgspec.Struct` types declared in
     the controllers' modules; handlers declare them as their parameter
     and return types, never dicts.
+  - The order of columns and cards is stored as an integer position,
+    kept by SQLAlchemy's `ordering_list` on `Board.columns` and
+    `Column.cards`.
   - Modules, by domain:
 
     ```
@@ -72,6 +75,8 @@
 - `ts_vue`: TypeScript, Vue 3, Vite, npm, ESLint with oxlint, Prettier,
   Vitest, Vue Router.
   - Dialogs are HTML `<dialog>` elements, without a library.
+  - Drag and drop uses the native HTML drag and drop API, without a
+    library.
 
 ## Tests and quality
 
