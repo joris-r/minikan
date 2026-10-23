@@ -3,7 +3,7 @@ from uuid import UUID
 
 import msgspec
 from advanced_alchemy.extensions.litestar.providers import create_service_provider
-from litestar import Controller, get, patch, post
+from litestar import Controller, delete, get, patch, post
 from litestar.di import NamedDependency
 from litestar.exceptions import NotFoundException
 from litestar.params import FromPath, JSONBody
@@ -104,6 +104,13 @@ class BoardController(Controller):
         board.title = data.title
         return ItemOut.of(await boards_service.update(board))
 
+    @delete("/{board_id:str}")
+    async def delete_board(
+        self, boards_service: Boards, user: CurrentUser, board_id: FromPath[str]
+    ) -> None:
+        board = await boards_service.get_owned(parse_id(board_id), user.id)
+        await boards_service.delete(board.id)
+
     @post("/{board_id:str}/columns")
     async def create_column(
         self,
@@ -135,6 +142,13 @@ class ColumnController(Controller):
         column.title = data.title
         return ItemOut.of(await columns_service.update(column))
 
+    @delete("/{column_id:str}")
+    async def delete_column(
+        self, columns_service: Columns, user: CurrentUser, column_id: FromPath[str]
+    ) -> None:
+        column = await columns_service.get_owned(parse_id(column_id), user.id)
+        await columns_service.delete(column.id)
+
     @post("/{column_id:str}/cards")
     async def create_card(
         self,
@@ -162,3 +176,10 @@ class CardController(Controller):
         card = await cards_service.get_owned(parse_id(card_id), user.id)
         card.title = data.title
         return ItemOut.of(await cards_service.update(card))
+
+    @delete("/{card_id:str}")
+    async def delete_card(
+        self, cards_service: Cards, user: CurrentUser, card_id: FromPath[str]
+    ) -> None:
+        card = await cards_service.get_owned(parse_id(card_id), user.id)
+        await cards_service.delete(card.id)

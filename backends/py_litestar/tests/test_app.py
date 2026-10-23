@@ -44,3 +44,16 @@ def test_parse_id_rejects_a_malformed_id_as_not_found() -> None:
 
     with pytest.raises(NotFoundException):
         parse_id("42")
+
+
+def test_foreign_keys_are_enforced() -> None:
+    from sqlalchemy import text
+
+    from minikan.db import db_config
+
+    async def foreign_keys() -> int:
+        async with db_config.get_engine().connect() as conn:
+            return (await conn.execute(text("PRAGMA foreign_keys"))).scalar_one()
+
+    with TestClient(app=app) as client:
+        assert client.blocking_portal.call(foreign_keys) == 1

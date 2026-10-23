@@ -2,9 +2,11 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from advanced_alchemy.base import orm_registry
 from advanced_alchemy.extensions.litestar import AsyncSessionConfig, SQLAlchemyAsyncConfig
+from sqlalchemy import event
 
 from minikan.accounts.services import UserService
 from minikan.models import User
@@ -21,6 +23,14 @@ db_config = SQLAlchemyAsyncConfig(
     session_config=AsyncSessionConfig(expire_on_commit=False),
     before_send_handler="autocommit",
 )
+
+
+# SQLite enforces foreign keys, and so deletes in cascade, only when asked on each connection.
+@event.listens_for(db_config.get_engine().sync_engine, "connect")
+def enable_foreign_keys(dbapi_connection: Any, _: Any) -> None:
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 
 async def create_storage() -> None:

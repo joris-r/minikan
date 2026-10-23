@@ -17,7 +17,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   if (!response.ok) {
     throw new Error(`${method} ${path}: ${response.status}`)
   }
-  return response.json()
+  return response.status === 204 ? (undefined as T) : response.json()
 }
 
 export const api = {
@@ -30,4 +30,7 @@ export const api = {
   setColumnTitle: (id: string, title: string) =>
     request<Item>('PATCH', `/columns/${id}`, { title }),
   setCardTitle: (id: string, title: string) => request<Item>('PATCH', `/cards/${id}`, { title }),
+  deleteBoard: (id: string) => request<void>('DELETE', `/boards/${id}`),
+  deleteColumn: (id: string) => request<void>('DELETE', `/columns/${id}`),
+  deleteCard: (id: string) => request<void>('DELETE', `/cards/${id}`),
 }
