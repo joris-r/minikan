@@ -20,3 +20,5 @@
 - Every id is a UUIDv7, assigned by the backend.
 - A title is a string of 0 to 100 characters, empty when created.
 - The order of boards, columns and cards is not specified.
+- R5: Deleting a board deletes its columns and their cards; deleting a
+  column deletes its cards.

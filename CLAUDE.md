@@ -28,6 +28,8 @@ would care.
     start Production;
   - in Verification, once the checks pass and no tag remains: the
     review is approved, make the exit commit.
+- After an exit commit, load the next phase's skill and open its
+  Exploration in the same turn.
 - Production ends when you hand over. First run the checks of the
   phase (see its skill) and fix what fails: the human reviews only work
   that passes them. Then set Step to Verification in STATE, and hand

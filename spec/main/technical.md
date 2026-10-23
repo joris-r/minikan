@@ -71,6 +71,7 @@
     ```
 - `ts_vue`: TypeScript, Vue 3, Vite, npm, ESLint with oxlint, Prettier,
   Vitest, Vue Router.
+  - Dialogs are HTML `<dialog>` elements, without a library.
 
 ## Tests and quality
 

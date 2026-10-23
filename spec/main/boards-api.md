@@ -92,6 +92,19 @@ HTTP/1.1 200 OK
 {"id": "01a15a40-c3bc-7392-9c37-587c8a9d939a", "title": "Doing"}
 ```
 
+## DELETE /api/boards/{id}, /api/columns/{id}, /api/cards/{id}
+
+Delete a board, column or card:
+
+```http
+DELETE /api/columns/01a15a40-c3bc-7392-9c37-587c8a9d939a
+Authorization: Bearer demo
+```
+
+```http
+HTTP/1.1 204 No Content
+```
+
 ## Errors
 
 - 400: the body is not JSON, or `title` is missing, not a string or
