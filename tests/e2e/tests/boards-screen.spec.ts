@@ -35,16 +35,11 @@ test.describe('Boards screen', () => {
   })
 
   test('an empty title is shown as "(Untitled)"', async ({ page }) => {
-    const title = uniqueTitle()
-    await createBoard(await apiAs('demo'), title)
+    const id = await createBoard(await apiAs('demo'), '')
+
     await page.goto('/')
-    await expect(page.getByText(title)).toBeVisible()
-    const untitled = page.getByRole('link', { name: '(Untitled)', exact: true })
-    const before = await untitled.count()
 
-    await createBoard(await apiAs('demo'), '')
-    await page.reload()
-
-    await expect(untitled).toHaveCount(before + 1)
+    const link = page.getByRole('link', { name: '(Untitled)', exact: true })
+    await expect(link.and(page.locator(`[href="/boards/${id}"]`))).toBeVisible()
   })
 })

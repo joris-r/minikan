@@ -3,7 +3,7 @@
 Updated only on the human's explicit decision.
 
 - Increment: parallel-e2e
-- Phase: Tests
+- Phase: Implementation
 - Step: Exploration
 
 ## Scope of the current increment
