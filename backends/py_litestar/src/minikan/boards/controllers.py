@@ -22,28 +22,13 @@ class TitleIn(msgspec.Struct):
     title: Annotated[str, msgspec.Meta(max_length=TITLE_MAX_LENGTH)]
 
 
-# Litestar converts bodies in lax mode, where "1" is accepted as an int; this type accepts only a
-# JSON integer, through the decoder below.
-class StrictInt(int):
-    pass
-
-
-def decode_strict_int(_: type, value: object) -> StrictInt:
-    if type(value) is not int:
-        raise TypeError(f"Expected an integer, got {value!r}")
-    return StrictInt(value)
-
-
-STRICT_INT_DECODER = (lambda target: target is StrictInt, decode_strict_int)
-
-
 class ColumnMoveIn(msgspec.Struct):
-    position: StrictInt
+    position: int
 
 
 class CardMoveIn(msgspec.Struct, rename="camel"):
     column_id: str
-    position: StrictInt
+    position: int
 
 
 class ItemOut(msgspec.Struct):
@@ -152,7 +137,6 @@ class BoardController(Controller):
 
 class ColumnController(Controller):
     path = "/columns"
-    type_decoders = [STRICT_INT_DECODER]
     dependencies = {
         "columns_service": create_service_provider(ColumnService),
         "cards_service": create_service_provider(CardService),
@@ -213,7 +197,6 @@ class ColumnController(Controller):
 
 class CardController(Controller):
     path = "/cards"
-    type_decoders = [STRICT_INT_DECODER]
     dependencies = {
         "cards_service": create_service_provider(CardService),
         "columns_service": create_service_provider(ColumnService),

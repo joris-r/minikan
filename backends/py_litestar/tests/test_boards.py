@@ -1,6 +1,5 @@
 import pytest
 
-from minikan.boards.controllers import StrictInt, decode_strict_int
 from minikan.boards.services import move
 
 
@@ -22,10 +21,3 @@ def test_move_between_lists_may_place_last() -> None:
     move(source, target, "a", 9)
 
     assert (source, target) == (["b"], ["x", "a"])
-
-
-def test_decode_strict_int_accepts_only_an_integer() -> None:
-    assert decode_strict_int(StrictInt, 3) == 3
-    for value in ["3", True, 3.0]:
-        with pytest.raises(TypeError):
-            decode_strict_int(StrictInt, value)
