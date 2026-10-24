@@ -16,4 +16,5 @@ representative kanban core, then add other backends and frontends.
 - Frontend ts_vue: failed API requests are unhandled (a reload aborting a title PATCH logs a Vue warning), and moves update the screen before their request while other changes wait for it; one policy for both. The e2e suite should fail on browser console errors and warnings.
 - Frontend ts_vue: the board screen's move logic (drag and drop, menu, dialog) would move to a composable, shrinking BoardView.
 - Frontend ts_vue: the Actions menu declares `role="menu"` but lacks the WAI-ARIA menu button keyboard pattern (arrow keys, focus into the menu on open).
+- Tests: creating.spec.ts and boards-screen.spec.ts count every untitled board, so they run apart from the parallel e2e suite; they should check only the boards they created.
 - Tests: property-based tests (Hypothesis) would check rules such as R2 as invariants over generated sequences of API calls.
