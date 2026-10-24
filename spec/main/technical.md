@@ -89,8 +89,8 @@
     `MINIKAN_API_URL`.
   - `tests/e2e`: TypeScript and Playwright (Chromium), against a
     frontend wired to a backend.
-- The shared suites never assume an empty storage: they check only
-  what they created.
+- The shared suites never assume an empty storage: each test checks
+  only what it created. The e2e suite runs its tests in parallel.
 - The Tests phase writes the shared suites; an implementation's own
   unit tests are written during Implementation.
 - An implementation is complete when it passes both shared suites.

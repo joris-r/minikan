@@ -206,3 +206,8 @@ These rules are specific to this project, outside the Dev43 process.
 ## Learning
 
 The goal of the project is learning, more than the kanban itself.
+
+The human is new to the frameworks and tools used here. In each
+Verification hand-over of the Tests and Implementation phases, point to
+one idiom of the diff worth understanding (file and line) and explain
+why it is there.
