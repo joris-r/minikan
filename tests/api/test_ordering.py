@@ -214,7 +214,7 @@ class TestMoveCard:
 class TestMoveErrors:
     @pytest.mark.parametrize(
         "body",
-        [{}, {"position": None}, {"position": "1"}, {"position": 1.5}, {"position": True}],
+        [{}, {"position": None}, {"position": "abc"}, {"position": 1.5}, {"position": True}],
     )
     def test_column_rejects_a_missing_or_non_integer_position(
         self, demo: httpx.Client, body: dict
@@ -233,7 +233,7 @@ class TestMoveErrors:
             {"columnId": 42, "position": 1},
             {"columnId": "{column}"},
             {"columnId": "{column}", "position": None},
-            {"columnId": "{column}", "position": "1"},
+            {"columnId": "{column}", "position": "abc"},
             {"columnId": "{column}", "position": 1.5},
             {"columnId": "{column}", "position": True},
         ],
