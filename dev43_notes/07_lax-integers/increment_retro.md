@@ -43,3 +43,17 @@ Active Record), or a quality or security point worth examining. The
 human picks one or none; nothing is committed and the gate does not
 depend on it." Removed from this project's `CLAUDE.md`, which keeps
 only that the goal of the project is learning.
+
+## Fold an empty Exploration into the exit gate
+
+What happened: the increment passed 8 gates for 28 removed lines.
+Three of them ended an Exploration where the agent had nothing, or
+almost nothing, to raise (Tests, Implementation, Integration): a round
+trip in which nothing was decided.
+
+Proposal, in the `CLAUDE.md` template, under "State and gates": "When
+you propose an exit and foresee nothing to raise in the next phase's
+Exploration, say so: `next` then makes the exit commit, ends that
+Exploration and starts its Production." The human still decides each
+gate, with one word for both; any answer other than `next` keeps the
+Exploration open.
