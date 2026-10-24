@@ -106,6 +106,10 @@ records that they must act on it.
   sample file) to prose. Add a few rules for what the examples do not
   show.
 - Use nested lists, never tables.
+- Specification, tests and implementation are linked by refinement: an
+  implementation may behave beyond what is specified. State each rule
+  as an observable outcome over the specified domain, never as an
+  absence; behavior outside that domain is left unspecified.
 - Give an ID only to a free-text rule that a test or code must cite and
   that no name already identifies: `R<n>:` at the start of its list
   item, e.g. `- R4: On error, the data file is left unchanged.` Numbers
@@ -196,10 +200,3 @@ These rules are specific to this project, outside the Dev43 process.
 ## Learning
 
 The goal of the project is learning, more than the kanban itself.
-
-- In the hand-over of Implementation, add a short "Going further"
-  section: two or three leads drawn from the actual work, never
-  generic, e.g. a concept or pattern at play (Data Mapper vs Active
-  Record), or a quality or security point worth examining. The human
-  picks one or none; nothing is committed and the gate does not depend
-  on it.

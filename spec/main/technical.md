@@ -59,6 +59,9 @@
   - Request and response bodies are `msgspec.Struct` types declared in
     the controllers' modules; handlers declare them as their parameter
     and return types, never dicts.
+  - Bodies are decoded in Litestar's lax mode: a position may also be
+    given as a string or a float holding an integer (`"1"`, `1.0`,
+    `"1.0"`).
   - The order of columns and cards is stored as an integer position,
     kept by SQLAlchemy's `ordering_list` on `Board.columns` and
     `Column.cards`.

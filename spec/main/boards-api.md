@@ -147,8 +147,9 @@ HTTP/1.1 204 No Content
 ## Errors
 
 - 400: the body is not JSON, or `title` is missing, not a string or
-  longer than 100 characters, or `position` is missing or not an
-  integer, or for a card move `columnId` is missing or not a string.
+  longer than 100 characters, or `position` is missing or does not
+  denote an integer (e.g. `1.5`, `true`, `null`), or for a card move
+  `columnId` is missing or not a string.
 - 404: unknown board, column or card, including a `columnId`.
 - R2: A board of another user, and its columns and cards, are answered
   as unknown (404).
