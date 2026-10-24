@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { api, type Board, type Column, type Item } from '../api'
 import ActionsMenu from '../components/ActionsMenu.vue'
 import AddButton from '../components/AddButton.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import MoveDialog from '../components/MoveDialog.vue'
 import TitleInput from '../components/TitleInput.vue'
 import TitleButton from '../components/TitleButton.vue'
 
@@ -17,6 +18,8 @@ const editing = ref<string>()
 const dragged = ref<{ column: Column } | { card: Item; from: Column }>()
 // The deletion waiting for confirmation, if any.
 const confirming = ref<{ message: string; run: () => Promise<void> }>()
+// The card whose move dialog is open, if any.
+const moving = ref<{ card: Item; from: Column }>()
 
 onMounted(async () => {
   board.value = await api.getBoard(props.id)
@@ -68,6 +71,69 @@ async function deleteCard(column: Column, card: Item) {
 function place<T>(source: T[], target: T[], item: T, position: number) {
   source.splice(source.indexOf(item), 1)
   target.splice(Math.min(Math.max(position, 1), target.length + 1) - 1, 0, item)
+}
+
+// Focuses the element with that id once the screen shows the latest changes.
+async function focus(id: string) {
+  await nextTick()
+  document.getElementById(id)?.focus()
+}
+
+function columnMoves(board: Board, column: Column): string[] {
+  const index = board.columns.indexOf(column)
+  return [
+    ...(index > 0 ? ['Move left'] : []),
+    ...(index < board.columns.length - 1 ? ['Move right'] : []),
+  ]
+}
+
+function cardMoves(column: Column, card: Item): string[] {
+  const index = column.cards.indexOf(card)
+  return [
+    ...(index > 0 ? ['Move up'] : []),
+    ...(index < column.cards.length - 1 ? ['Move down'] : []),
+    'Move to column',
+  ]
+}
+
+async function moveColumn(board: Board, column: Column, item: string) {
+  const position = board.columns.indexOf(column) + (item === 'Move left' ? 0 : 2)
+  place(board.columns, board.columns, column, position)
+  await focus(`actions-${column.id}`)
+  await api.moveColumn(column.id, position)
+}
+
+async function moveCardWithin(column: Column, card: Item, item: string) {
+  if (item === 'Move to column') {
+    moving.value = { card, from: column }
+    return
+  }
+  const position = column.cards.indexOf(card) + (item === 'Move up' ? 0 : 2)
+  place(column.cards, column.cards, card, position)
+  await focus(`actions-${card.id}`)
+  await api.moveCard(card.id, column.id, position)
+}
+
+// R9: after a move to another column, the focus stays in the source column, for triage.
+async function moveCardTo(board: Board, columnId: string, end: 'top' | 'bottom') {
+  const { card, from } = moving.value!
+  moving.value = undefined
+  const to = board.columns.find((c) => c.id === columnId)!
+  const index = from.cards.indexOf(card)
+  const position = end === 'top' ? 1 : to.cards.length + (to === from ? 0 : 1)
+  place(from.cards, to.cards, card, position)
+  if (to === from) await focus(`actions-${card.id}`)
+  else {
+    const next = from.cards[index] ?? from.cards[index - 1]
+    await focus(next ? `actions-${next.id}` : `add-card-${from.id}`)
+  }
+  await api.moveCard(card.id, to.id, position)
+}
+
+async function cancelMove() {
+  const card = moving.value?.card
+  moving.value = undefined
+  if (card) await focus(`actions-${card.id}`)
 }
 
 function startDrag(event: DragEvent, item: NonNullable<typeof dragged.value>) {
@@ -149,7 +215,12 @@ async function record(item: Item, title: string, setTitle: typeof api.setColumnT
             />
             <TitleButton v-else :title="column.title" @click="editing = column.id" />
           </h2>
-          <ActionsMenu @delete="deleteColumn(board, column)" />
+          <ActionsMenu
+            :toggle-id="`actions-${column.id}`"
+            :moves="columnMoves(board, column)"
+            @move="moveColumn(board, column, $event)"
+            @delete="deleteColumn(board, column)"
+          />
         </div>
         <ul class="cards">
           <li v-for="card in column.cards" :key="card.id">
@@ -170,11 +241,16 @@ async function record(item: Item, title: string, setTitle: typeof api.setColumnT
                 />
                 <TitleButton v-else :title="card.title" @click="editing = card.id" />
               </span>
-              <ActionsMenu @delete="deleteCard(column, card)" />
+              <ActionsMenu
+                :toggle-id="`actions-${card.id}`"
+                :moves="cardMoves(column, card)"
+                @move="moveCardWithin(column, card, $event)"
+                @delete="deleteCard(column, card)"
+              />
             </article>
           </li>
         </ul>
-        <AddButton label="Add card" @click="addCard(column)" />
+        <AddButton :id="`add-card-${column.id}`" label="Add card" @click="addCard(column)" />
       </article>
       <AddButton label="Add column" @click="addColumn(board)" />
     </div>
@@ -184,6 +260,13 @@ async function record(item: Item, title: string, setTitle: typeof api.setColumnT
       action="Delete"
       @confirm="confirmed"
       @cancel="confirming = undefined"
+    />
+    <MoveDialog
+      v-if="moving"
+      :columns="board.columns"
+      :current="moving.from.id"
+      @move="(columnId, end) => moveCardTo(board!, columnId, end)"
+      @cancel="cancelMove"
     />
   </article>
 </template>

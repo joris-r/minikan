@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from 'vue'
 
-const emit = defineEmits<{ delete: [] }>()
+// `moves` are shown before "Delete"; `toggleId` lets the parent focus the Actions button.
+const { moves = [] } = defineProps<{ moves?: string[]; toggleId?: string }>()
+const emit = defineEmits<{ delete: []; move: [item: string] }>()
 
 const open = ref(false)
 const root = ref<HTMLElement>()
@@ -28,15 +30,17 @@ function onEscape() {
   toggle.value?.focus()
 }
 
-function choose() {
+function choose(item?: string) {
   close()
-  emit('delete')
+  if (item === undefined) emit('delete')
+  else emit('move', item)
 }
 </script>
 
 <template>
   <div ref="root" class="actions" @keydown.escape="onEscape">
     <button
+      :id="toggleId"
       ref="toggle"
       type="button"
       class="toggle"
@@ -53,7 +57,10 @@ function choose() {
       </svg>
     </button>
     <div v-if="open" role="menu" class="menu">
-      <button type="button" role="menuitem" @click="choose">Delete</button>
+      <button v-for="item in moves" :key="item" type="button" role="menuitem" @click="choose(item)">
+        {{ item }}
+      </button>
+      <button type="button" role="menuitem" @click="choose()">Delete</button>
     </div>
   </div>
 </template>

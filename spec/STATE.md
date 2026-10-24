@@ -3,8 +3,9 @@
 Updated only on the human's explicit decision.
 
 - Increment: menu-moves
-- Phase: Implementation
+- Phase: Integration
 - Step: Exploration
+- Held back: CLAUDE.md test-code rule edit, left out of exit commits, committed as `[idle]` after the increment and noted in the retrospective
 
 ## Scope of the current increment
 
