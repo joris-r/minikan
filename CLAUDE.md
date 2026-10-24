@@ -28,8 +28,11 @@ would care.
     start Production;
   - in Verification, once the checks pass and no tag remains: the
     review is approved, make the exit commit.
-- After an exit commit, load the next phase's skill and open its
-  Exploration in the same turn.
+- When you propose an exit commit, read the next skill's Exploration
+  topics. If you foresee nothing to raise, say so: `next` then also
+  ends that Exploration and starts its Production, e.g. "`next`: make
+  the exit commit, skip Tests Exploration, start Production." Any
+  other answer keeps that Exploration open.
 - Production ends when you hand over. First run the checks of the
   phase (see its skill) and fix what fails: the human reviews only work
   that passes them. Then set Step to Verification in STATE, and hand
@@ -96,6 +99,12 @@ records that they must act on it.
 - Write the minimum, by the silver rule. Everything else is derived by
   agents, in tests and code. Tag what you are unsure of instead of
   specifying it.
+- Specification, tests and implementation are linked by refinement: an
+  implementation may behave beyond what is specified. State each
+  behavior rule as an outcome observable over the specified domain; an
+  absence only when a test can observe it. Behavior outside that
+  domain is left unspecified. Technical rules constrain the
+  implementation directly and are checked in review, not by tests.
 - A decision states what is decided, not why. Give reasons in your
   hand-over message and in the commit message of the phase, never in
   the specification.
@@ -106,10 +115,6 @@ records that they must act on it.
   sample file) to prose. Add a few rules for what the examples do not
   show.
 - Use nested lists, never tables.
-- Specification, tests and implementation are linked by refinement: an
-  implementation may behave beyond what is specified. State each rule
-  as an observable outcome over the specified domain, never as an
-  absence; behavior outside that domain is left unspecified.
 - Give an ID only to a free-text rule that a test or code must cite and
   that no name already identifies: `R<n>:` at the start of its list
   item, e.g. `- R4: On error, the data file is left unchanged.` Numbers
