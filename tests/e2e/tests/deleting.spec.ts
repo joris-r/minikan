@@ -90,13 +90,12 @@ async function expectDeleted(page: Page, title: string): Promise<void> {
 
 for (const { name, open } of places) {
   test.describe(`Actions menu of ${name}`, () => {
-    test('opens a menu whose only item is "Delete"', async ({ page }) => {
+    test('opens a menu holding "Delete"', async ({ page }) => {
       const title = await open(page, true)
 
       await actions(page, title).click()
 
       await expect(page.getByRole('menu')).toBeVisible()
-      await expect(page.getByRole('menuitem')).toHaveCount(1)
       await expect(page.getByRole('menuitem', { name: 'Delete' })).toBeVisible()
     })
   })
