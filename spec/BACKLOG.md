@@ -15,3 +15,9 @@
 - Frontend ts_vue: the Actions menu declares `role="menu"` but lacks the WAI-ARIA menu button keyboard pattern (arrow keys, focus into the menu on open).
 - Tests: property-based tests (Hypothesis) would check rules such as R2 as invariants over generated sequences of API calls.
 - Backend rs_axum: widen its scope beyond the health check, starting with users and boards; first choose its storage library (e.g. SQLx or SeaORM).
+- Process: some increments with the roles reversed, where the human writes the Implementation or the Tests and the agent reviews.
+- Backend java_spring: Spring Boot backend, checked by the shared e2e suite.
+- Backend cs_aspnet: ASP.NET Core backend, checked by the shared e2e suite.
+- Backend py_fastapi: FastAPI backend, the most common Python framework in job offers.
+- Frontend ts_angular: Angular frontend, checked by the shared e2e suite.
+- Security: e2e tests that attack the app (IDOR, injection, oversized payloads), then fix what fails.
