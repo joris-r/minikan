@@ -1,9 +1,12 @@
 # Dev43 state
 
-Updated only on the human's explicit decision.
+Updated on the human's decisions, and at the agent's hand-over (Step).
 
+- Dev43: 1.4.0
 - Increment:
-- Phase: Idle
+- Shape:
+- Phase: Pause
 - Step:
+- Stash:
 
 ## Scope of the current increment
