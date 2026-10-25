@@ -5,6 +5,16 @@ health check.
 
 ## Technical
 
+### Repository
+
+New, after "Every implementation provides a `Makefile` with the targets
+`setup`, `run` (honouring `PORT`) and `check` (lint, format check, unit
+tests).":
+
+- A partial implementation's `Makefile` also has a `scope` target,
+  printing the names of its scope. A name selects the shared tests in
+  `tests/api/test_<name>.py` and `tests/e2e/tests/<name>.spec.ts`.
+
 ### Implementations
 
 New entry:
