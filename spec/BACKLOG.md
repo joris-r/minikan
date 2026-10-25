@@ -1,8 +1,5 @@
 # Backlog
 
-Strategy: grow features on the `py_litestar` / `ts_vue` pair up to a
-representative kanban core, then add other backends and frontends.
-
 - Real authentication, replacing the user name as token.
 - Sharing boards between users.
 - Real-time updates between clients viewing the same board (needs sharing).
@@ -17,3 +14,4 @@ representative kanban core, then add other backends and frontends.
 - Frontend ts_vue: the board screen's move logic (drag and drop, menu, dialog) would move to a composable, shrinking BoardView.
 - Frontend ts_vue: the Actions menu declares `role="menu"` but lacks the WAI-ARIA menu button keyboard pattern (arrow keys, focus into the menu on open).
 - Tests: property-based tests (Hypothesis) would check rules such as R2 as invariants over generated sequences of API calls.
+- Backend rs_axum: widen its scope beyond the health check, starting with users and boards; first choose its storage library (e.g. SQLx or SeaORM).

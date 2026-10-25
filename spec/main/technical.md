@@ -9,6 +9,9 @@
   - `tests/e2e/`: the end-to-end suite.
 - Every implementation provides a `Makefile` with the targets `setup`,
   `run` (honouring `PORT`) and `check` (lint, format check, unit tests).
+- A partial implementation's `Makefile` also has a `scope` target,
+  printing the names of its scope. A name selects the shared tests in
+  `tests/api/test_<name>.py` and `tests/e2e/tests/<name>.spec.ts`.
 - Every backend's `run` target accepts `TEMP_STORAGE=1`: the backend
   starts with storage holding only the seeded users, and discards it
   when it stops. The root runner uses it for the shared suites.
@@ -75,6 +78,12 @@
       accounts/     # User: service, current user dependency
       boards/       # Board, Column, Card: services, controllers
     ```
+- `rs_axum`: partial, its scope is `health`. Rust (stable, edition
+  2024), Axum on Tokio, serde, cargo, rustfmt, Clippy.
+  - Response bodies are serde-serialized structs, never JSON values
+    built by hand.
+  - Unit tests run with `cargo test`, calling the router in-process
+    through tower's `ServiceExt::oneshot`, without opening a port.
 - `ts_vue`: TypeScript, Vue 3, Vite, npm, ESLint with oxlint, Prettier,
   Vitest, Vue Router.
   - Dialogs are HTML `<dialog>` elements, without a library.
@@ -93,7 +102,10 @@
   only what it created. The e2e suite runs its tests in parallel.
 - The Tests phase writes the shared suites; an implementation's own
   unit tests are written during Implementation.
-- An implementation is complete when it passes both shared suites.
+- An implementation is complete when it passes both shared suites. A
+  partial implementation has a scope, given in its entry under
+  Implementations; for it, `make check` runs only the shared tests of
+  that scope, in both suites.
 - Each implementation has its own unit tests for its internals, in the
   idiom of its stack.
 - `make check` passes before every commit.
