@@ -1,18 +1,14 @@
-.PHONY: setup run check scope
+.PHONY: setup run check
 
 PORT ?= 8000
 
 setup:
 	cargo build
 
-# No storage yet: TEMP_STORAGE is accepted and has no effect.
 run:
-	PORT=$(PORT) cargo run --quiet
+	PORT=$(PORT) TEMP_STORAGE=$(TEMP_STORAGE) cargo run --quiet
 
 check:
 	cargo clippy --all-targets -- -D warnings
 	cargo fmt --check
 	cargo test
-
-scope:
-	@echo health

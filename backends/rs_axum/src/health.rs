@@ -20,7 +20,7 @@ mod tests {
     async fn health_answers_ok() {
         let request = Request::get("/api/health").body(Body::empty()).unwrap();
 
-        let response = crate::app().oneshot(request).await.unwrap();
+        let response = crate::test_app().await.oneshot(request).await.unwrap();
 
         assert_eq!(response.status(), StatusCode::OK);
         let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
