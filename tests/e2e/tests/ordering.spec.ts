@@ -1,4 +1,5 @@
-import { test, expect, type Locator, type Page } from '@playwright/test'
+import { type Locator, type Page } from '@playwright/test'
+import { test, expect } from './fixtures'
 import { apiAs, createBoard, createCard, createColumn, uniqueTitle } from './api'
 
 type Column = { id: string; title: string; cards: string[]; cardIds: string[] }

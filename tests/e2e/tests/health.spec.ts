@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures'
 
 test('the health screen shows that the frontend reaches the backend', async ({ page }) => {
   await page.goto('/health')

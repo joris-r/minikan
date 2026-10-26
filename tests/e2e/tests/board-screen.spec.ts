@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures'
 import { apiAs, createBoard, createCard, createColumn, uniqueTitle } from './api'
 
 test.describe('Board screen', () => {

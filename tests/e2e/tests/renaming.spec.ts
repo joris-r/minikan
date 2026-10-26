@@ -1,4 +1,5 @@
-import { test, expect, type Page } from '@playwright/test'
+import { type Page } from '@playwright/test'
+import { test, expect } from './fixtures'
 import { apiAs, createBoard, createCard, createColumn, uniqueTitle } from './api'
 
 // Opens a board screen holding a board, a column and a card, and returns their titles.
