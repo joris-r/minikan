@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { api, type Item } from '../api'
+import { send, useScreen } from '../changes'
 import ActionsMenu from '../components/ActionsMenu.vue'
 import AddButton from '../components/AddButton.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
@@ -12,24 +13,27 @@ const editing = ref<string>()
 // The board waiting for confirmation of its deletion, if any.
 const confirming = ref<Item>()
 
-onMounted(async () => {
+useScreen(async () => {
   boards.value = await api.listBoards()
-})
+}, 'The boards could not be loaded.')
 
 async function addBoard() {
-  const board = await api.createBoard()
+  const board = await send(() => api.createBoard())
+  if (!board) return
   boards.value.push(board)
   editing.value = board.id
 }
 
 async function remove(board: Item) {
-  await api.deleteBoard(board.id)
   boards.value = boards.value.filter((b) => b.id !== board.id)
+  await send(() => api.deleteBoard(board.id))
 }
 
 // The list does not tell whether a board holds columns, so the board is fetched to know.
 async function deleteBoard(board: Item) {
-  if ((await api.getBoard(board.id)).columns.length === 0) await remove(board)
+  const full = await send(() => api.getBoard(board.id))
+  if (!full) return
+  if (full.columns.length === 0) await remove(board)
   else confirming.value = board
 }
 
@@ -39,8 +43,10 @@ async function confirmed(board: Item) {
 }
 
 async function record(board: Item, title: string) {
-  board.title = (await api.setBoardTitle(board.id, title)).title
   editing.value = undefined
+  board.title = title
+  const saved = await send(() => api.setBoardTitle(board.id, title))
+  if (saved) board.title = saved.title
 }
 </script>
 

@@ -5,8 +5,8 @@ Updated on the human's decisions, and at the agent's hand-over (Step).
 - Dev43: 1.5.0
 - Increment: vue-request-policy
 - Shape: full
-- Phase: Implementation
-- Step: Production
+- Phase: Integration
+- Step: Exploration
 - Stash:
 
 ## Scope of the current increment

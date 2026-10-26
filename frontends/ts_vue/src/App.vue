@@ -1,7 +1,12 @@
+<script setup lang="ts">
+import NoticeBanner from './components/NoticeBanner.vue'
+</script>
+
 <template>
   <header>
     <RouterLink to="/">minikan</RouterLink>
   </header>
+  <NoticeBanner />
   <main>
     <RouterView />
   </main>

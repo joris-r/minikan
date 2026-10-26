@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { api, type Board, type Column, type Item } from '../api'
+import { send, useScreen } from '../changes'
 import ActionsMenu from '../components/ActionsMenu.vue'
 import AddButton from '../components/AddButton.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
@@ -21,18 +22,20 @@ const confirming = ref<{ message: string; run: () => Promise<void> }>()
 // The card whose move dialog is open, if any.
 const moving = ref<{ card: Item; from: Column }>()
 
-onMounted(async () => {
+useScreen(async () => {
   board.value = await api.getBoard(props.id)
-})
+}, 'The board could not be loaded.')
 
 async function addColumn(board: Board) {
-  const column = await api.createColumn(board.id)
+  const column = await send(() => api.createColumn(board.id))
+  if (!column) return
   board.columns.push({ ...column, cards: [] })
   editing.value = column.id
 }
 
 async function addCard(column: Column) {
-  const card = await api.createCard(column.id)
+  const card = await send(() => api.createCard(column.id))
+  if (!card) return
   column.cards.push(card)
   editing.value = card.id
 }
@@ -44,9 +47,11 @@ async function confirmed() {
 }
 
 async function deleteBoard(board: Board) {
+  // The deletion is sent first, so that the boards screen waits for it before loading.
   const run = async () => {
-    await api.deleteBoard(board.id)
+    const deleted = send(() => api.deleteBoard(board.id))
     await router.push('/')
+    await deleted
   }
   if (board.columns.length === 0) await run()
   else confirming.value = { message: 'Delete this board, its columns and their cards?', run }
@@ -54,16 +59,16 @@ async function deleteBoard(board: Board) {
 
 async function deleteColumn(board: Board, column: Column) {
   const run = async () => {
-    await api.deleteColumn(column.id)
     board.columns = board.columns.filter((c) => c.id !== column.id)
+    await send(() => api.deleteColumn(column.id))
   }
   if (column.cards.length === 0) await run()
   else confirming.value = { message: 'Delete this column and its cards?', run }
 }
 
 async function deleteCard(column: Column, card: Item) {
-  await api.deleteCard(card.id)
   column.cards = column.cards.filter((c) => c.id !== card.id)
+  await send(() => api.deleteCard(card.id))
 }
 
 // Moves `item` from `source` into `target`, possibly the same list, at a position counted from 1,
@@ -100,7 +105,7 @@ async function moveColumn(board: Board, column: Column, item: string) {
   const position = board.columns.indexOf(column) + (item === 'Move left' ? 0 : 2)
   place(board.columns, board.columns, column, position)
   await focus(`actions-${column.id}`)
-  await api.moveColumn(column.id, position)
+  await send(() => api.moveColumn(column.id, position))
 }
 
 async function moveCardWithin(column: Column, card: Item, item: string) {
@@ -111,7 +116,7 @@ async function moveCardWithin(column: Column, card: Item, item: string) {
   const position = column.cards.indexOf(card) + (item === 'Move up' ? 0 : 2)
   place(column.cards, column.cards, card, position)
   await focus(`actions-${card.id}`)
-  await api.moveCard(card.id, column.id, position)
+  await send(() => api.moveCard(card.id, column.id, position))
 }
 
 // R9: after a move to another column, the focus stays in the source column, for triage.
@@ -127,7 +132,7 @@ async function moveCardTo(board: Board, columnId: string, end: 'top' | 'bottom')
     const next = from.cards[index] ?? from.cards[index - 1]
     await focus(next ? `actions-${next.id}` : `add-card-${from.id}`)
   }
-  await api.moveCard(card.id, to.id, position)
+  await send(() => api.moveCard(card.id, to.id, position))
 }
 
 async function cancelMove() {
@@ -151,11 +156,11 @@ async function dropOnColumn(board: Board, column: Column) {
     if (item.column === column) return
     const position = board.columns.indexOf(column) + 1
     place(board.columns, board.columns, item.column, position)
-    await api.moveColumn(item.column.id, position)
+    await send(() => api.moveColumn(item.column.id, position))
   } else if (item) {
     const position = column.cards.length + 1
     place(item.from.cards, column.cards, item.card, position)
-    await api.moveCard(item.card.id, column.id, position)
+    await send(() => api.moveCard(item.card.id, column.id, position))
   }
 }
 
@@ -169,13 +174,15 @@ async function dropOnCard(event: DragEvent, column: Column, card: Item) {
   if (item.card === card) return
   const position = column.cards.indexOf(card) + 1
   place(item.from.cards, column.cards, item.card, position)
-  await api.moveCard(item.card.id, column.id, position)
+  await send(() => api.moveCard(item.card.id, column.id, position))
 }
 
 // Editing ends before the request, so that a title clicked meanwhile stays in editing.
 async function record(item: Item, title: string, setTitle: typeof api.setColumnTitle) {
   editing.value = undefined
-  item.title = (await setTitle(item.id, title)).title
+  item.title = title
+  const saved = await send(() => setTitle(item.id, title))
+  if (saved) item.title = saved.title
 }
 </script>
 
