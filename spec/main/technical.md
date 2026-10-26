@@ -118,6 +118,8 @@
     frontend wired to a backend.
 - The shared suites never assume an empty storage: each test checks
   only what it created. The e2e suite runs its tests in parallel.
+- An e2e test fails when its page logs an error or a warning to the
+  browser console.
 - The Tests phase writes the shared suites; an implementation's own
   unit tests are written during Implementation.
 - An implementation is complete when it passes both shared suites. A

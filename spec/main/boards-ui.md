@@ -90,3 +90,22 @@ Move card
 - R4: Escape leaves the input without recording: the title shown is the
   one before editing, and no request is sent.
 - An empty title is shown as "(Untitled)".
+
+## Changes and failures
+
+- R10: Renaming, moving or deleting a board, column or card is shown at
+  once, before the API answers. Creating one is shown once the API has
+  answered.
+- R11: When the request of a change fails, the screen then shown
+  reloads its data from the API and shows a banner, with the ARIA role
+  `alert`:
+
+  ```
+  The change could not be saved; the screen was reloaded.   [Close]
+  ```
+
+- When a screen's first load fails, the banner reads "The board could
+  not be loaded." on the board screen, "The boards could not be
+  loaded." on the boards screen.
+- "Close" removes the banner; so does a later change whose request
+  succeeds.
