@@ -2,11 +2,28 @@ import { request, type APIRequestContext } from '@playwright/test'
 
 const apiURL = `http://localhost:${process.env.API_PORT ?? '8000'}`
 
-export async function apiAs(user: string): Promise<APIRequestContext> {
+// Logs `user` in, with its seeded password, and returns the session token.
+export async function logIn(user: string): Promise<string> {
+  const context = await request.newContext({ baseURL: apiURL })
+  const response = await context.post('/api/login', {
+    data: { name: user, password: `${user}-password` },
+  })
+  const token = /session=([^;]*)/.exec(response.headers()['set-cookie'] ?? '')?.[1]
+  await context.dispose()
+  if (response.status() !== 204 || !token) throw new Error(`cannot log in as ${user}`)
+  return token
+}
+
+// An API client holding the session `token`. The cookie is sent by hand, as a header.
+export async function apiWith(token: string): Promise<APIRequestContext> {
   return request.newContext({
     baseURL: apiURL,
-    extraHTTPHeaders: { Authorization: `Bearer ${user}` },
+    extraHTTPHeaders: { Cookie: `session=${token}` },
   })
+}
+
+export async function apiAs(user: string): Promise<APIRequestContext> {
+  return apiWith(await logIn(user))
 }
 
 export async function createBoard(api: APIRequestContext, title: string): Promise<string> {

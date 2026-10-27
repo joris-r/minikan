@@ -1,6 +1,31 @@
+import os
 import uuid
+from http.cookies import Morsel, SimpleCookie
 
 import httpx
+
+BASE_URL = os.environ.get("MINIKAN_API_URL", "http://localhost:8000")
+
+
+def session_cookie(response: httpx.Response) -> Morsel:
+    cookie: SimpleCookie = SimpleCookie()
+    cookie.load(response.headers["set-cookie"])
+    return cookie["session"]
+
+
+def log_in(name: str, password: str) -> str:
+    response = httpx.post(f"{BASE_URL}/api/login", json={"name": name, "password": password})
+    assert response.status_code == 204
+    return session_cookie(response).value
+
+
+# The cookie is sent by hand: httpx keeps a Secure cookie to https URLs.
+def client_for(token: str) -> httpx.Client:
+    return httpx.Client(base_url=BASE_URL, headers={"Cookie": f"session={token}"})
+
+
+def logged_in(name: str) -> httpx.Client:
+    return client_for(log_in(name, f"{name}-password"))
 
 
 def unique_title() -> str:

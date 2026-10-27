@@ -1,18 +1,47 @@
 import { test as base, expect, type ConsoleMessage, type Page } from '@playwright/test'
+import { logIn } from './api'
 
 // The URLs of the requests a test made fail, per page: the browser reports each failed response
 // in the console.
 const failed = new WeakMap<Page, Set<string>>()
 
+// A 401 answer is reported too; a test without a session expects them.
 function isReportOfFailure(page: Page, message: ConsoleMessage): boolean {
   return (
     message.text().startsWith('Failed to load resource:') &&
-    (failed.get(page)?.has(message.location().url) ?? false)
+    ((failed.get(page)?.has(message.location().url) ?? false) ||
+      message.text().includes('status of 401'))
   )
 }
 
 // Every test fails when its page logs an error or a warning, or throws an uncaught error.
-export const test = base.extend<{ quietConsole: void }>({
+// Every test's page holds a session of `user` (`demo` unless set with `test.use`), or none when
+// `user` is null; `session` is its token.
+export const test = base.extend<{
+  quietConsole: void
+  user: string | null
+  session: string | null
+}>({
+  user: ['demo', { option: true }],
+  session: [
+    async ({ user, context }, use) => {
+      if (user === null) return use(null)
+      const token = await logIn(user)
+      await context.addCookies([
+        {
+          name: 'session',
+          value: token,
+          domain: 'localhost',
+          path: '/api',
+          httpOnly: true,
+          secure: true,
+          sameSite: 'Strict',
+        },
+      ])
+      await use(token)
+    },
+    { auto: true },
+  ],
   quietConsole: [
     async ({ page }, use) => {
       const logged: string[] = []

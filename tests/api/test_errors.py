@@ -21,6 +21,8 @@ ENDPOINTS = [
     ("DELETE", "/api/cards/{card}"),
     ("POST", "/api/columns/{column}/move"),
     ("POST", "/api/cards/{card}/move"),
+    ("GET", "/api/session"),
+    ("POST", "/api/logout"),
 ]
 
 WITH_ID = [e for e in ENDPOINTS if "{" in e[1]]
@@ -56,17 +58,27 @@ def _ids(endpoints: list[tuple[str, str]]) -> list[str]:
 
 class TestUnauthorized:
     @pytest.mark.parametrize(("method", "path"), ENDPOINTS, ids=_ids(ENDPOINTS))
-    def test_rejects_a_missing_authorization(
+    def test_r15_rejects_a_missing_session_cookie(
         self, api: httpx.Client, demo: httpx.Client, method: str, path: str
     ) -> None:
         assert_error(_request(api, method, path, _entities(demo)), 401)
 
     @pytest.mark.parametrize(("method", "path"), ENDPOINTS, ids=_ids(ENDPOINTS))
-    def test_rejects_an_unknown_user(
+    def test_r15_rejects_an_unknown_session(
         self, api: httpx.Client, demo: httpx.Client, method: str, path: str
     ) -> None:
         response = _request(
-            api, method, path, _entities(demo), headers={"Authorization": "Bearer nobody"}
+            api, method, path, _entities(demo), headers={"Cookie": "session=unknown"}
+        )
+
+        assert_error(response, 401)
+
+    @pytest.mark.parametrize(("method", "path"), ENDPOINTS, ids=_ids(ENDPOINTS))
+    def test_r15_ignores_the_authorization_header(
+        self, api: httpx.Client, demo: httpx.Client, method: str, path: str
+    ) -> None:
+        response = _request(
+            api, method, path, _entities(demo), headers={"Authorization": "Bearer demo"}
         )
 
         assert_error(response, 401)

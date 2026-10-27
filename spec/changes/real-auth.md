@@ -132,7 +132,8 @@ Replaces the "Identity", "The frontends act as the user `demo`" and
 - Identity: every request other than the health check and the login
   carries the cookie `session`, set by the login.
 - R15: 401: the cookie `session` is missing, or names no session or an
-  expired one. An `Authorization` header is ignored.
+  expired one (expired session not testable). An `Authorization`
+  header is ignored.
 - A session expires 7 days after login.
 - Session tokens are 32 bytes from a cryptographically secure random
   generator. The storage keeps only their SHA-256 hash.
