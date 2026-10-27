@@ -1,6 +1,6 @@
 import { type Page } from '@playwright/test'
 import { apiAs, apiWith, createBoard, uniqueTitle } from './api'
-import { test, expect } from './fixtures'
+import { test, expect, fail } from './fixtures'
 
 async function logIn(page: Page, name: string, password: string): Promise<void> {
   await page.goto('/login')
@@ -45,6 +45,15 @@ test.describe('Login screen', () => {
       await expect(page).toHaveURL('/login')
     })
   }
+
+  test('a failed login request shows that it could not be sent', async ({ page }) => {
+    await fail(page, 'POST', '**/api/login')
+
+    await logIn(page, 'demo', 'demo-password')
+
+    await expect(page.getByRole('alert')).toHaveText('The login could not be sent; try again.')
+    await expect(page).toHaveURL('/login')
+  })
 })
 
 test.describe('Header bar', () => {
@@ -76,6 +85,22 @@ test.describe('Header bar', () => {
 
     await expect(page).toHaveURL('/login')
     expect((await (await apiWith(session!)).get('/api/session')).status()).toBe(401)
+  })
+
+  test('a failed "Log out" keeps the screen and the session, with a banner', async ({
+    page,
+    session,
+  }) => {
+    await page.goto('/')
+    await fail(page, 'POST', '**/api/logout')
+
+    await page.getByRole('button', { name: 'Log out', exact: true }).click()
+
+    await expect(page.getByRole('alert')).toContainText(
+      'The logout failed; the session is still open.',
+    )
+    await expect(page).toHaveURL('/')
+    expect((await (await apiWith(session!)).get('/api/session')).status()).toBe(200)
   })
 
   test.describe('of another user', () => {
