@@ -1,6 +1,7 @@
 # Backlog
 
-- Real authentication, replacing the user name as token.
+- Registration: a sign-up screen and endpoint, with password rules.
+- Security: limit login attempts against brute force.
 - Sharing boards between users.
 - Real-time updates between clients viewing the same board (needs sharing).
 - Card description and tags, with filtering by tag.
