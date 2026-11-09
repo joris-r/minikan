@@ -37,19 +37,22 @@ def _move_card(
     )
 
 
-class TestR7NewLast:
+class TestNewLast:
     def test_columns_are_in_creation_order(self, demo: httpx.Client) -> None:
+        # /boards/operations/add-column/added
         board_id, columns = _board_with_columns(demo, 3)
 
         assert _column_ids(demo, board_id) == columns
 
     def test_cards_are_in_creation_order(self, demo: httpx.Client) -> None:
+        # /boards/operations/add-card/added
         board = create_board(demo)
         column_id, cards = _column_with_cards(demo, board["id"], 3)
 
         assert _card_ids(demo, board["id"], column_id) == cards
 
     def test_a_new_column_is_last_after_a_move(self, demo: httpx.Client) -> None:
+        # /boards/operations/add-column/added
         board_id, [a, b] = _board_with_columns(demo, 2)
         _move_column(demo, b, 1)
 
@@ -58,6 +61,7 @@ class TestR7NewLast:
         assert _column_ids(demo, board_id) == [b, a, c]
 
     def test_a_new_card_is_last_after_a_move(self, demo: httpx.Client) -> None:
+        # /boards/operations/add-card/added
         board = create_board(demo)
         column_id, [a, b] = _column_with_cards(demo, board["id"], 2)
         _move_card(demo, b, column_id, 1)
@@ -69,6 +73,7 @@ class TestR7NewLast:
 
 class TestMoveColumn:
     def test_moves_a_column_to_the_first_position(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-column/moved, /boards/model/column/contiguous
         board_id, [a, b, c] = _board_with_columns(demo, 3)
 
         response = _move_column(demo, c, 1)
@@ -78,6 +83,7 @@ class TestMoveColumn:
         assert _column_ids(demo, board_id) == [c, a, b]
 
     def test_moves_a_column_towards_the_end(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-column/moved, /boards/model/column/contiguous
         board_id, [a, b, c, d] = _board_with_columns(demo, 4)
 
         assert _move_column(demo, a, 3).status_code == 204
@@ -85,6 +91,7 @@ class TestMoveColumn:
         assert _column_ids(demo, board_id) == [b, c, a, d]
 
     def test_moving_to_its_own_position_changes_nothing(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-column/moved
         board_id, [a, b, c] = _board_with_columns(demo, 3)
 
         assert _move_column(demo, b, 2).status_code == 204
@@ -92,6 +99,7 @@ class TestMoveColumn:
         assert _column_ids(demo, board_id) == [a, b, c]
 
     def test_keeps_the_cards_of_the_column(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-column/moved
         board_id, [a] = _board_with_columns(demo, 1)
         b, cards = _column_with_cards(demo, board_id, 2)
 
@@ -101,6 +109,7 @@ class TestMoveColumn:
         assert _card_ids(demo, board_id, b) == cards
 
     def test_leaves_other_boards_unchanged(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-column/moved
         board_id, [a, b] = _board_with_columns(demo, 2)
         other_board, others = _board_with_columns(demo, 2)
 
@@ -110,7 +119,8 @@ class TestMoveColumn:
         assert _column_ids(demo, other_board) == others
 
     @pytest.mark.parametrize("position", [0, -5])
-    def test_r8_a_position_below_1_places_it_first(self, demo: httpx.Client, position: int) -> None:
+    def test_a_position_below_1_places_it_first(self, demo: httpx.Client, position: int) -> None:
+        # /boards/operations/move-column/clamped
         board_id, [a, b, c] = _board_with_columns(demo, 3)
 
         assert _move_column(demo, c, position).status_code == 204
@@ -118,7 +128,8 @@ class TestMoveColumn:
         assert _column_ids(demo, board_id) == [c, a, b]
 
     @pytest.mark.parametrize("position", [4, 99])
-    def test_r8_a_position_above_n_places_it_last(self, demo: httpx.Client, position: int) -> None:
+    def test_a_position_above_n_places_it_last(self, demo: httpx.Client, position: int) -> None:
+        # /boards/operations/move-column/clamped
         board_id, [a, b, c] = _board_with_columns(demo, 3)
 
         assert _move_column(demo, a, position).status_code == 204
@@ -127,7 +138,20 @@ class TestMoveColumn:
 
 
 class TestMoveCard:
+    def test_the_former_column_keeps_its_order(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-card/moved
+        board = create_board(demo)
+        todo, [a, b, c, d] = _column_with_cards(demo, board["id"], 4)
+        done, _ = _column_with_cards(demo, board["id"], 0)
+
+        assert _move_card(demo, b, done, 1).status_code == 204
+
+        assert _card_ids(demo, board["id"], todo) == [a, c, d]
+        assert _card_ids(demo, board["id"], done) == [b]
+
     def test_moves_a_card_to_another_column(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-card/moved, /boards/model/card/contiguous,
+        # /operations/general/json
         board = create_board(demo)
         todo, [x, y] = _column_with_cards(demo, board["id"], 2)
         done, [p, q] = _column_with_cards(demo, board["id"], 2)
@@ -140,6 +164,7 @@ class TestMoveCard:
         assert _card_ids(demo, board["id"], done) == [p, x, q]
 
     def test_moves_a_card_to_an_empty_column(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-card/moved
         board = create_board(demo)
         todo, [x, y] = _column_with_cards(demo, board["id"], 2)
         done, _ = _column_with_cards(demo, board["id"], 0)
@@ -150,6 +175,7 @@ class TestMoveCard:
         assert _card_ids(demo, board["id"], done) == [y]
 
     def test_moves_a_card_up_in_its_column(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-card/moved
         board = create_board(demo)
         column, [a, b, c, d] = _column_with_cards(demo, board["id"], 4)
 
@@ -158,6 +184,7 @@ class TestMoveCard:
         assert _card_ids(demo, board["id"], column) == [a, d, b, c]
 
     def test_moves_a_card_down_in_its_column(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-card/moved
         board = create_board(demo)
         column, [a, b, c, d] = _column_with_cards(demo, board["id"], 4)
 
@@ -166,6 +193,7 @@ class TestMoveCard:
         assert _card_ids(demo, board["id"], column) == [b, c, a, d]
 
     def test_moves_a_card_to_a_column_of_another_board(self, demo: httpx.Client) -> None:
+        # /boards/operations/move-card/moved
         board = create_board(demo)
         todo, [x, y] = _column_with_cards(demo, board["id"], 2)
         elsewhere = create_board(demo)
@@ -177,7 +205,8 @@ class TestMoveCard:
         assert _card_ids(demo, elsewhere["id"], target) == [x, p]
 
     @pytest.mark.parametrize("position", [0, -5])
-    def test_r8_a_position_below_1_places_it_first(self, demo: httpx.Client, position: int) -> None:
+    def test_a_position_below_1_places_it_first(self, demo: httpx.Client, position: int) -> None:
+        # /boards/operations/move-card/clamped
         board = create_board(demo)
         todo, [x] = _column_with_cards(demo, board["id"], 1)
         done, [p, q] = _column_with_cards(demo, board["id"], 2)
@@ -188,9 +217,10 @@ class TestMoveCard:
         assert _card_ids(demo, board["id"], done) == [x, p, q]
 
     @pytest.mark.parametrize("position", [4, 99])
-    def test_r8_a_position_above_n_places_it_last_in_another_column(
+    def test_a_position_above_n_places_it_last_in_another_column(
         self, demo: httpx.Client, position: int
     ) -> None:
+        # /boards/operations/move-card/clamped
         board = create_board(demo)
         _, [x] = _column_with_cards(demo, board["id"], 1)
         done, [p, q, r] = _column_with_cards(demo, board["id"], 3)
@@ -200,9 +230,10 @@ class TestMoveCard:
         assert _card_ids(demo, board["id"], done) == [p, q, r, x]
 
     @pytest.mark.parametrize("position", [3, 99])
-    def test_r8_a_position_above_n_places_it_last_in_its_column(
+    def test_a_position_above_n_places_it_last_in_its_column(
         self, demo: httpx.Client, position: int
     ) -> None:
+        # /boards/operations/move-card/clamped
         board = create_board(demo)
         column, [a, b, c] = _column_with_cards(demo, board["id"], 3)
 
@@ -219,6 +250,7 @@ class TestMoveErrors:
     def test_column_rejects_a_missing_or_non_integer_position(
         self, demo: httpx.Client, body: dict
     ) -> None:
+        # /operations/general/malformed
         board_id, columns = _board_with_columns(demo, 2)
 
         assert_error(demo.post(f"/api/columns/{columns[1]}/move", json=body), 400)
@@ -239,6 +271,7 @@ class TestMoveErrors:
         ],
     )
     def test_card_rejects_a_missing_or_invalid_field(self, demo: httpx.Client, body: dict) -> None:
+        # /operations/general/malformed
         board = create_board(demo)
         column, cards = _column_with_cards(demo, board["id"], 2)
         body = {k: column if v == "{column}" else v for k, v in body.items()}
@@ -249,6 +282,7 @@ class TestMoveErrors:
 
     @pytest.mark.parametrize("path", ["/api/columns/{id}/move", "/api/cards/{id}/move"])
     def test_rejects_a_body_that_is_not_json(self, demo: httpx.Client, path: str) -> None:
+        # /operations/general/malformed
         board = create_board(demo)
         column, [card] = _column_with_cards(demo, board["id"], 1)
         entity = column if path.startswith("/api/columns") else card
@@ -263,6 +297,7 @@ class TestMoveErrors:
 
     @pytest.mark.parametrize("column_id", [str(uuid.uuid7()), "42"])
     def test_card_rejects_an_unknown_column(self, demo: httpx.Client, column_id: str) -> None:
+        # /boards/operations/general/unknown
         board = create_board(demo)
         column, [card] = _column_with_cards(demo, board["id"], 1)
 
@@ -270,9 +305,10 @@ class TestMoveErrors:
 
         assert _card_ids(demo, board["id"], column) == [card]
 
-    def test_r2_card_rejects_a_column_of_another_user(
+    def test_card_rejects_a_column_of_another_user(
         self, demo: httpx.Client, other: httpx.Client
     ) -> None:
+        # /boards/operations/general/owner
         board = create_board(demo)
         column, [card] = _column_with_cards(demo, board["id"], 1)
         theirs = create_board(other)

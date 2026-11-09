@@ -58,15 +58,17 @@ def _ids(endpoints: list[tuple[str, str]]) -> list[str]:
 
 class TestUnauthorized:
     @pytest.mark.parametrize(("method", "path"), ENDPOINTS, ids=_ids(ENDPOINTS))
-    def test_r15_rejects_a_missing_session_cookie(
+    def test_rejects_a_missing_session_cookie(
         self, api: httpx.Client, demo: httpx.Client, method: str, path: str
     ) -> None:
+        # /accounts/operations/general/session, /accounts/operations/general/unauthenticated
         assert_error(_request(api, method, path, _entities(demo)), 401)
 
     @pytest.mark.parametrize(("method", "path"), ENDPOINTS, ids=_ids(ENDPOINTS))
-    def test_r15_rejects_an_unknown_session(
+    def test_rejects_an_unknown_session(
         self, api: httpx.Client, demo: httpx.Client, method: str, path: str
     ) -> None:
+        # /accounts/operations/general/unauthenticated
         response = _request(
             api, method, path, _entities(demo), headers={"Cookie": "session=unknown"}
         )
@@ -74,19 +76,35 @@ class TestUnauthorized:
         assert_error(response, 401)
 
     @pytest.mark.parametrize(("method", "path"), ENDPOINTS, ids=_ids(ENDPOINTS))
-    def test_r15_ignores_the_authorization_header(
+    def test_ignores_the_authorization_header(
         self, api: httpx.Client, demo: httpx.Client, method: str, path: str
     ) -> None:
+        # /accounts/operations/general/header
         response = _request(
             api, method, path, _entities(demo), headers={"Authorization": "Bearer demo"}
         )
 
         assert_error(response, 401)
 
+    def test_the_message(self, api: httpx.Client) -> None:
+        # /accounts/operations/general/unauthenticated
+        response = api.get("/api/boards")
+
+        assert response.status_code == 401
+        assert response.json() == {"error": "Unauthorized"}
+
 
 class TestNotFound:
+    def test_the_message(self, demo: httpx.Client) -> None:
+        # /boards/operations/general/unknown
+        response = demo.get(f"/api/boards/{uuid.uuid7()}")
+
+        assert response.status_code == 404
+        assert response.json() == {"error": "Not Found"}
+
     @pytest.mark.parametrize(("method", "path"), WITH_ID, ids=_ids(WITH_ID))
     def test_unknown_id(self, demo: httpx.Client, method: str, path: str) -> None:
+        # /boards/operations/general/unknown
         unknown = str(uuid.uuid7())
         ids = {"board": unknown, "column": unknown, "card": unknown}
 
@@ -94,14 +112,16 @@ class TestNotFound:
 
     @pytest.mark.parametrize(("method", "path"), WITH_ID, ids=_ids(WITH_ID))
     def test_malformed_id(self, demo: httpx.Client, method: str, path: str) -> None:
+        # /boards/operations/general/unknown
         ids = {"board": "42", "column": "42", "card": "42"}
 
         assert_error(_request(demo, method, path, ids), 404)
 
     @pytest.mark.parametrize(("method", "path"), WITH_ID, ids=_ids(WITH_ID))
-    def test_r2_entities_of_another_user(
+    def test_entities_of_another_user(
         self, demo: httpx.Client, other: httpx.Client, method: str, path: str
     ) -> None:
+        # /boards/operations/general/owner
         ids = _entities(other)
 
         assert_error(_request(demo, method, path, ids), 404)

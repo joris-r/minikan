@@ -57,6 +57,7 @@ async function drag(page: Page, source: string, target: string) {
 }
 
 test.describe('Board screen: order', () => {
+  // /boards/ui/board-screen/board
   test('columns and cards are shown in order', async ({ page }) => {
     const api = await apiAs('demo')
     const board = await openBoard(page, [0, 0, 3])
@@ -76,6 +77,7 @@ test.describe('Board screen: order', () => {
 })
 
 test.describe('Drag and drop', () => {
+  // /boards/ui/drag-and-drop/onto
   test('a column dropped onto a later column takes its position', async ({ page }) => {
     const board = await openBoard(page, [0, 0, 0])
     const [a, b, c] = board.columns.map((column) => column.title) as [string, string, string]
@@ -85,6 +87,7 @@ test.describe('Drag and drop', () => {
     await expectOrder(page, board.title, [a, b, c], [b, c, a])
   })
 
+  // /boards/ui/drag-and-drop/onto
   test('a column dropped onto an earlier column takes its position', async ({ page }) => {
     const board = await openBoard(page, [0, 0, 0])
     const [a, b, c] = board.columns.map((column) => column.title) as [string, string, string]
@@ -94,6 +97,7 @@ test.describe('Drag and drop', () => {
     await expectOrder(page, board.title, [a, b, c], [a, c, b])
   })
 
+  // /boards/ui/drag-and-drop/onto
   test('a column keeps its cards when moved', async ({ page }) => {
     const board = await openBoard(page, [1, 2])
     const [a, b] = board.columns.map((column) => column.title) as [string, string]
@@ -105,6 +109,7 @@ test.describe('Drag and drop', () => {
     await expect.poll(() => order(page, b, cards)).toEqual(cards)
   })
 
+  // /boards/ui/drag-and-drop/onto
   test('a card dropped onto a later card of its column takes its position', async ({ page }) => {
     const board = await openBoard(page, [3])
     const column = board.columns[0]!
@@ -115,6 +120,7 @@ test.describe('Drag and drop', () => {
     await expectOrder(page, column.title, column.cards, [y, z, x])
   })
 
+  // /boards/ui/drag-and-drop/onto
   test('a card dropped onto an earlier card of its column takes its position', async ({ page }) => {
     const board = await openBoard(page, [3])
     const column = board.columns[0]!
@@ -125,6 +131,7 @@ test.describe('Drag and drop', () => {
     await expectOrder(page, column.title, column.cards, [x, z, y])
   })
 
+  // /boards/ui/drag-and-drop/onto
   test('a card dropped onto a card of another column takes its position', async ({ page }) => {
     const board = await openBoard(page, [2, 2])
     const [todo, done] = board.columns as [Column, Column]
@@ -138,6 +145,7 @@ test.describe('Drag and drop', () => {
     await expect.poll(() => order(page, todo.title, all)).toEqual([y])
   })
 
+  // /boards/ui/drag-and-drop/column-end
   test('a card dropped onto a column, outside its cards, is placed last', async ({ page }) => {
     const board = await openBoard(page, [2, 2])
     const [todo, done] = board.columns as [Column, Column]
@@ -151,6 +159,7 @@ test.describe('Drag and drop', () => {
     await expect.poll(() => order(page, todo.title, all)).toEqual([y])
   })
 
+  // /boards/ui/drag-and-drop/column-end
   test('a card dropped onto an empty column is placed in it', async ({ page }) => {
     const board = await openBoard(page, [1, 0])
     const [todo, done] = board.columns as [Column, Column]

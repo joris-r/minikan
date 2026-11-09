@@ -20,6 +20,7 @@ async function add(page: Page, label: string): Promise<string> {
 }
 
 const entities: Entity[] = [
+  // /boards/ui/boards-screen/add, /boards/ui/boards-screen/add-board
   {
     name: 'board',
     open: async (page) => {
@@ -34,6 +35,7 @@ const entities: Entity[] = [
         .getByRole('link', { name: '(Untitled)', exact: true })
         .and(page.locator(`[href="/boards/${id}"]`)),
   },
+  // /boards/ui/board-screen/add, /boards/ui/board-screen/add-column
   {
     name: 'column',
     open: async (page) => {
@@ -46,6 +48,7 @@ const entities: Entity[] = [
     // The other titles of the board screen are not empty.
     untitled: untitledText,
   },
+  // /boards/ui/board-screen/add-card-button, /boards/ui/board-screen/add-card
   {
     name: 'card',
     open: async (page) => {
@@ -62,7 +65,8 @@ const entities: Entity[] = [
 ]
 
 for (const { name, open, untitled } of entities) {
-  test.describe(`R3: creating a ${name}`, () => {
+  test.describe(`Title input: creating a ${name}`, () => {
+    // /boards/ui/item/created
     test('shows a focused, empty title input', async ({ page }) => {
       const label = await open(page)
 
@@ -73,6 +77,7 @@ for (const { name, open, untitled } of entities) {
       await expect(input).toHaveValue('')
     })
 
+    // /boards/ui/title-input/record
     test('Enter records the title', async ({ page }) => {
       const label = await open(page)
       const title = uniqueTitle()
@@ -87,6 +92,7 @@ for (const { name, open, untitled } of entities) {
       await expect(page.getByText(title, { exact: true })).toBeVisible()
     })
 
+    // /boards/ui/title-input/record
     test('leaving the input records the title', async ({ page }) => {
       const label = await open(page)
       const title = uniqueTitle()
@@ -101,6 +107,7 @@ for (const { name, open, untitled } of entities) {
       await expect(page.getByText(title, { exact: true })).toBeVisible()
     })
 
+    // /boards/ui/title-input/record
     test('Enter on an empty input records an empty title', async ({ page }) => {
       const label = await open(page)
       const id = await add(page, label)
@@ -114,7 +121,8 @@ for (const { name, open, untitled } of entities) {
     })
   })
 
-  test.describe(`R4: creating a ${name}`, () => {
+  test.describe(`Title input: creating a ${name}, then Escape`, () => {
+    // /boards/ui/title-input/escape
     test('Escape keeps the empty title and sends no request', async ({ page }) => {
       const label = await open(page)
       const patches: string[] = []

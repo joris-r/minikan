@@ -101,6 +101,7 @@ async function tabTo(page: Page, target: Locator): Promise<void> {
 }
 
 test.describe('Actions menu: items', () => {
+  // /boards/ui/actions-menu/column
   test('of a column: "Move left" unless first, "Move right" unless last', async ({ page }) => {
     const board = await openBoard(page, [0, 0, 0])
     const [a, b, c] = board.columns.map((column) => column.title) as [string, string, string]
@@ -112,12 +113,14 @@ test.describe('Actions menu: items', () => {
     expect(await menuItems(page, c)).toEqual(['Move left', 'Delete'])
   })
 
+  // /boards/ui/actions-menu/column
   test('of the only column: "Delete"', async ({ page }) => {
     const board = await openBoard(page, [0])
 
     expect(await menuItems(page, board.columns[0]!.title)).toEqual(['Delete'])
   })
 
+  // /boards/ui/actions-menu/card
   test('of a card: "Move up" unless first, "Move down" unless last', async ({ page }) => {
     const board = await openBoard(page, [3])
     const [x, y, z] = board.columns[0]!.cards as [string, string, string]
@@ -129,20 +132,34 @@ test.describe('Actions menu: items', () => {
     expect(await menuItems(page, z)).toEqual(['Move up', 'Move to column', 'Delete'])
   })
 
+  // /boards/ui/actions-menu/card
   test('of the only card of the only column: "Move to column", "Delete"', async ({ page }) => {
     const board = await openBoard(page, [1])
 
     expect(await menuItems(page, board.columns[0]!.cards[0]!)).toEqual(['Move to column', 'Delete'])
   })
 
+  // /boards/ui/actions-menu/board
   test('of the board: "Delete"', async ({ page }) => {
     const board = await openBoard(page, [1, 1])
 
     expect(await menuItems(page, board.title)).toEqual(['Delete'])
   })
+
+  // /boards/ui/actions-menu/board
+  test('of a board on the boards screen: "Delete"', async ({ page }) => {
+    const title = uniqueTitle()
+    const api = await apiAs('demo')
+    await createColumn(api, await createBoard(api, title), uniqueTitle())
+    await page.goto('/')
+    await expect(article(page, title)).toBeVisible()
+
+    expect(await menuItems(page, title)).toEqual(['Delete'])
+  })
 })
 
 test.describe('Actions menu: moves', () => {
+  // /boards/ui/actions-menu/left-right
   test('"Move left" swaps a column with its left neighbour', async ({ page }) => {
     const board = await openBoard(page, [0, 0, 0])
     const [a, b, c] = board.columns.map((column) => column.title) as [string, string, string]
@@ -152,6 +169,7 @@ test.describe('Actions menu: moves', () => {
     await expectOrder(page, board.title, [a, b, c], [b, a, c])
   })
 
+  // /boards/ui/actions-menu/left-right
   test('"Move right" swaps a column with its right neighbour', async ({ page }) => {
     const board = await openBoard(page, [0, 0, 0])
     const [a, b, c] = board.columns.map((column) => column.title) as [string, string, string]
@@ -161,6 +179,7 @@ test.describe('Actions menu: moves', () => {
     await expectOrder(page, board.title, [a, b, c], [a, c, b])
   })
 
+  // /boards/ui/actions-menu/left-right
   test('a column keeps its cards when moved', async ({ page }) => {
     const board = await openBoard(page, [2, 0])
     const [a, b] = board.columns.map((column) => column.title) as [string, string]
@@ -172,6 +191,7 @@ test.describe('Actions menu: moves', () => {
     await expect.poll(() => order(page, a, cards)).toEqual(cards)
   })
 
+  // /boards/ui/actions-menu/up-down
   test('"Move up" swaps a card with the card above', async ({ page }) => {
     const board = await openBoard(page, [3])
     const column = board.columns[0]!
@@ -182,6 +202,7 @@ test.describe('Actions menu: moves', () => {
     await expectOrder(page, column.title, column.cards, [y, x, z])
   })
 
+  // /boards/ui/actions-menu/up-down
   test('"Move down" swaps a card with the card below', async ({ page }) => {
     const board = await openBoard(page, [3])
     const column = board.columns[0]!
@@ -192,6 +213,7 @@ test.describe('Actions menu: moves', () => {
     await expectOrder(page, column.title, column.cards, [x, z, y])
   })
 
+  // /boards/ui/actions-menu/move-to
   test('"Move to column" opens the move dialog', async ({ page }) => {
     const board = await openBoard(page, [1])
 
@@ -202,6 +224,7 @@ test.describe('Actions menu: moves', () => {
 })
 
 test.describe('Move dialog', () => {
+  // /boards/ui/move-dialog/rows, /boards/ui/move-dialog/cancel
   test('lists every column of the board, in order, with "Top" and "Bottom"', async ({ page }) => {
     const board = await openBoard(page, [0, 1, 0])
     const titles = board.columns.map((column) => column.title)
@@ -218,6 +241,7 @@ test.describe('Move dialog', () => {
     await expect(dialog(page).getByRole('button', { name: 'Cancel' })).toBeVisible()
   })
 
+  // /boards/ui/move-dialog/current
   test("marks the card's own column \"(current)\"", async ({ page }) => {
     const board = await openBoard(page, [0, 1])
     const [other, own] = board.columns as [Column, Column]
@@ -228,6 +252,7 @@ test.describe('Move dialog', () => {
     await expect(dialog(page)).not.toContainText(markedCurrent(other.title))
   })
 
+  // /boards/ui/move-dialog/top
   test('"Top" moves the card first in another column', async ({ page }) => {
     const board = await openBoard(page, [2, 2])
     const [todo, done] = board.columns as [Column, Column]
@@ -243,6 +268,7 @@ test.describe('Move dialog', () => {
     await expect.poll(() => order(page, todo.title, all)).toEqual([x])
   })
 
+  // /boards/ui/move-dialog/bottom
   test('"Bottom" moves the card last in another column', async ({ page }) => {
     const board = await openBoard(page, [2, 2])
     const [todo, done] = board.columns as [Column, Column]
@@ -258,6 +284,7 @@ test.describe('Move dialog', () => {
     await expect.poll(() => order(page, todo.title, all)).toEqual([y])
   })
 
+  // /boards/ui/move-dialog/top
   test('"Top" on an empty column moves the card into it', async ({ page }) => {
     const board = await openBoard(page, [1, 0])
     const [todo, done] = board.columns as [Column, Column]
@@ -270,6 +297,7 @@ test.describe('Move dialog', () => {
     await expect.poll(() => order(page, todo.title, [x])).toEqual([])
   })
 
+  // /boards/ui/move-dialog/top
   test('"Top" on its own column moves the card first', async ({ page }) => {
     const board = await openBoard(page, [3])
     const column = board.columns[0]!
@@ -282,6 +310,7 @@ test.describe('Move dialog', () => {
     await expectOrder(page, column.title, column.cards, [z, x, y])
   })
 
+  // /boards/ui/move-dialog/bottom
   test('"Bottom" on its own column moves the card last', async ({ page }) => {
     const board = await openBoard(page, [3])
     const column = board.columns[0]!
@@ -294,6 +323,7 @@ test.describe('Move dialog', () => {
     await expectOrder(page, column.title, column.cards, [y, z, x])
   })
 
+  // /boards/ui/move-dialog/close
   test('"Cancel" closes the dialog without moving the card', async ({ page }) => {
     const board = await openBoard(page, [2, 0])
     const [todo, done] = board.columns as [Column, Column]
@@ -307,6 +337,7 @@ test.describe('Move dialog', () => {
     await expect.poll(() => order(page, done.title, [x, y])).toEqual([])
   })
 
+  // /boards/ui/move-dialog/close
   test('Escape closes the dialog without moving the card', async ({ page }) => {
     const board = await openBoard(page, [2, 0])
     const [todo, done] = board.columns as [Column, Column]
@@ -321,8 +352,9 @@ test.describe('Move dialog', () => {
   })
 })
 
-test.describe('R9: focus after a move', () => {
+test.describe('Focus after a move', () => {
   for (const item of ['Move left', 'Move right']) {
+    // /boards/ui/actions-menu/focus, /boards/ui/actions-menu/focus-same
     test(`after "${item}", on the moved column's Actions button`, async ({ page }) => {
       const board = await openBoard(page, [0, 0, 0])
       const b = board.columns[1]!.title
@@ -334,6 +366,7 @@ test.describe('R9: focus after a move', () => {
   }
 
   for (const item of ['Move up', 'Move down']) {
+    // /boards/ui/actions-menu/focus, /boards/ui/actions-menu/focus-same
     test(`after "${item}", on the moved card's Actions button`, async ({ page }) => {
       const board = await openBoard(page, [3])
       const y = board.columns[0]!.cards[1]!
@@ -344,6 +377,7 @@ test.describe('R9: focus after a move', () => {
     })
   }
 
+  // /boards/ui/actions-menu/focus, /boards/ui/actions-menu/focus-same
   test("after a move to its own column, on the moved card's Actions button", async ({ page }) => {
     const board = await openBoard(page, [3])
     const column = board.columns[0]!
@@ -355,6 +389,7 @@ test.describe('R9: focus after a move', () => {
     await expect(actions(page, z)).toBeFocused()
   })
 
+  // /boards/ui/actions-menu/focus, /boards/ui/actions-menu/focus-other
   test('after a move to another column, on the card now at its former position', async ({
     page,
   }) => {
@@ -368,6 +403,7 @@ test.describe('R9: focus after a move', () => {
     await expect(actions(page, z)).toBeFocused()
   })
 
+  // /boards/ui/actions-menu/focus, /boards/ui/actions-menu/focus-other
   test('after moving the last card to another column, on the previous card', async ({ page }) => {
     const board = await openBoard(page, [3, 0])
     const [todo, done] = board.columns as [Column, Column]
@@ -379,6 +415,7 @@ test.describe('R9: focus after a move', () => {
     await expect(actions(page, y)).toBeFocused()
   })
 
+  // /boards/ui/actions-menu/focus, /boards/ui/actions-menu/focus-other
   test('after moving the only card to another column, on "Add card" of the source column', async ({
     page,
   }) => {
@@ -391,6 +428,7 @@ test.describe('R9: focus after a move', () => {
     await expect(addCard(page, todo.title)).toBeFocused()
   })
 
+  // /boards/ui/actions-menu/focus, /boards/ui/actions-menu/focus-other
   test('a column is triaged card after card from the keyboard', async ({ page }) => {
     const board = await openBoard(page, [2, 0])
     const [todo, done] = board.columns as [Column, Column]

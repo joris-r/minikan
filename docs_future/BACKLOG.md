@@ -21,3 +21,5 @@
 - Backend py_fastapi: FastAPI backend, the most common Python framework in job offers.
 - Frontend ts_angular: Angular frontend, checked by the shared e2e suite.
 - Security: e2e tests that attack the app (IDOR, injection, oversized payloads), then fix what fails.
+- Tests e2e: renaming.spec reloads right after an optimistic rename and can race the PATCH; wait for the response before reloading.
+- Tests: the order and placement statements of the UI (header above the rest, "Actions" right after the title, login message below the form, banner message before "Close") get a test, or are marked layout not testable.

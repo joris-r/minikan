@@ -17,6 +17,25 @@ async function newBoard(): Promise<string> {
 test.describe('Login screen', () => {
   test.use({ user: null })
 
+  // /accounts/ui/login-screen/form
+  test('shows "Log in", then the name and password fields, then the button', async ({ page }) => {
+    await page.goto('/login')
+
+    const parts = [
+      page.getByRole('heading', { name: 'Log in', exact: true }),
+      page.getByLabel('Name', { exact: true }),
+      page.getByLabel('Password', { exact: true }),
+      page.getByRole('button', { name: 'Log in', exact: true }),
+    ]
+    const tops: number[] = []
+    for (const part of parts) {
+      await expect(part).toBeVisible()
+      tops.push((await part.boundingBox())!.y)
+    }
+    expect(tops).toEqual([...tops].sort((a, b) => a - b))
+  })
+
+  // /accounts/ui/login-screen/form, /accounts/ui/login-screen/log-in, /accounts/ui/login-screen/accepted
   test('"Log in" with a valid name and password goes to the boards screen', async ({ page }) => {
     await logIn(page, 'demo', 'demo-password')
 
@@ -24,6 +43,7 @@ test.describe('Login screen', () => {
     await expect(page.getByText('demo', { exact: true })).toBeVisible()
   })
 
+  // /accounts/ui/login-screen/accepted, /boards/ui/header-bar/user
   test('the session is of the user who logged in', async ({ page }) => {
     await logIn(page, 'other', 'other-password')
 
@@ -35,6 +55,7 @@ test.describe('Login screen', () => {
     ['demo', 'wrong-password'],
     ['nobody', 'demo-password'],
   ]) {
+    // /accounts/ui/login-screen/rejected, /accounts/ui/login-screen/message
     test(`with name "${name}" and password "${password}", shows an alert and empties the password`, async ({
       page,
     }) => {
@@ -46,6 +67,7 @@ test.describe('Login screen', () => {
     })
   }
 
+  // /accounts/ui/login-screen/failed, /accounts/ui/login-screen/message
   test('a failed login request shows that it could not be sent', async ({ page }) => {
     await fail(page, 'POST', '**/api/login')
 
@@ -61,6 +83,7 @@ test.describe('Header bar', () => {
     ['boards screen', async () => '/'],
     ['board screen', async () => `/boards/${await newBoard()}`],
   ] as const) {
+    // /boards/ui/header-bar/home, /boards/ui/header-bar/user, /boards/ui/boards-screen/header, /boards/ui/board-screen/header
     test(`on the ${screen}, shows "Minikan", the user and "Log out"`, async ({ page }) => {
       await page.goto(await path())
 
@@ -70,6 +93,31 @@ test.describe('Header bar', () => {
     })
   }
 
+  // /boards/ui/header-bar/home, /boards/ui/header-bar/user, /boards/ui/board-screen/header
+  test('shows "Minikan", the user, then "Log out", left to right, above the board', async ({
+    page,
+  }) => {
+    const title = uniqueTitle()
+    await page.goto(`/boards/${await createBoard(await apiAs('demo'), title)}`)
+    const board = page.getByRole('article', { name: title, exact: true })
+    await expect(board).toBeVisible()
+
+    const lefts: number[] = []
+    let bottom = 0
+    for (const part of [
+      page.getByRole('link', { name: 'Minikan', exact: true }),
+      page.getByText('demo', { exact: true }),
+      page.getByRole('button', { name: 'Log out', exact: true }),
+    ]) {
+      const box = (await part.boundingBox())!
+      lefts.push(box.x)
+      bottom = Math.max(bottom, box.y + box.height)
+    }
+    expect(lefts).toEqual([...lefts].sort((a, b) => a - b))
+    expect(bottom).toBeLessThanOrEqual((await board.boundingBox())!.y)
+  })
+
+  // /boards/ui/header-bar/home
   test('"Minikan" goes to the boards screen', async ({ page }) => {
     await page.goto(`/boards/${await newBoard()}`)
 
@@ -78,6 +126,7 @@ test.describe('Header bar', () => {
     await expect(page).toHaveURL('/')
   })
 
+  // /boards/ui/header-bar/log-out, /boards/ui/header-bar/ended
   test('"Log out" ends the session and goes to the login screen', async ({ page, session }) => {
     await page.goto('/')
 
@@ -87,6 +136,7 @@ test.describe('Header bar', () => {
     expect((await (await apiWith(session!)).get('/api/session')).status()).toBe(401)
   })
 
+  // /boards/ui/header-bar/failed, /boards/ui/banner/message
   test('a failed "Log out" keeps the screen and the session, with a banner', async ({
     page,
     session,
@@ -106,6 +156,7 @@ test.describe('Header bar', () => {
   test.describe('of another user', () => {
     test.use({ user: 'other' })
 
+    // /boards/ui/header-bar/user
     test('shows the name of that user', async ({ page }) => {
       await page.goto('/')
 
@@ -115,10 +166,11 @@ test.describe('Header bar', () => {
   })
 })
 
-test.describe('R14', () => {
+test.describe('A 401 answer', () => {
   test.describe('without a session', () => {
     test.use({ user: null })
 
+    // /boards/ui/changes/unauthenticated
     test('the first load of the boards screen goes to the login screen', async ({ page }) => {
       await page.goto('/')
 
@@ -126,6 +178,7 @@ test.describe('R14', () => {
       await expect(page.getByRole('alert')).toHaveCount(0)
     })
 
+    // /boards/ui/changes/unauthenticated
     test('the first load of the board screen goes to the login screen', async ({ page }) => {
       await page.goto(`/boards/${await newBoard()}`)
 
@@ -134,6 +187,7 @@ test.describe('R14', () => {
     })
   })
 
+  // /boards/ui/changes/unauthenticated
   test('a 401 answer to a change goes to the login screen', async ({ page, session }) => {
     const api = await apiAs('demo')
     const title = uniqueTitle()
@@ -149,11 +203,27 @@ test.describe('R14', () => {
     await expect(page).toHaveURL('/login')
     await expect(page.getByRole('alert')).toHaveCount(0)
   })
+
+  // /boards/ui/changes/unauthenticated
+  test('a 401 answer to a change on the boards screen goes to the login screen', async ({
+    page,
+    session,
+  }) => {
+    await page.goto('/')
+    await expect(page.getByRole('button', { name: 'Add board' })).toBeVisible()
+    await (await apiWith(session!)).post('/api/logout')
+
+    await page.getByRole('button', { name: 'Add board' }).click()
+
+    await expect(page).toHaveURL('/login')
+    await expect(page.getByRole('alert')).toHaveCount(0)
+  })
 })
 
 test.describe('Health screen', () => {
   test.use({ user: null })
 
+  // /ui/health-screen/status
   test('needs no session', async ({ page }) => {
     await page.goto('/health')
 

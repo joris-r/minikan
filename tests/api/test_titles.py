@@ -52,6 +52,7 @@ class TestPatchTitle:
     def test_sets_the_title(
         self, demo: httpx.Client, create: Callable[[httpx.Client], tuple[str, str]]
     ) -> None:
+        # /boards/operations/rename/renamed
         path, board_id = create(demo)
         title = unique_title()
 
@@ -64,6 +65,7 @@ class TestPatchTitle:
     def test_sets_an_empty_title(
         self, demo: httpx.Client, create: Callable[[httpx.Client], tuple[str, str]]
     ) -> None:
+        # /boards/operations/rename/renamed, /boards/model/title/length
         path, board_id = create(demo)
         set_title(demo, path, "Doing")
 
@@ -76,6 +78,7 @@ class TestPatchTitle:
     def test_accepts_100_characters(
         self, demo: httpx.Client, create: Callable[[httpx.Client], tuple[str, str]]
     ) -> None:
+        # /boards/operations/rename/renamed, /boards/model/title/length
         path, board_id = create(demo)
         title = "é" * 100
 
@@ -87,6 +90,7 @@ class TestPatchTitle:
     def test_rejects_101_characters(
         self, demo: httpx.Client, create: Callable[[httpx.Client], tuple[str, str]]
     ) -> None:
+        # /boards/operations/rename/long, /boards/model/title/length
         path, board_id = create(demo)
 
         response = demo.patch(path, json={"title": "x" * 101})
@@ -101,6 +105,7 @@ class TestPatchTitle:
         create: Callable[[httpx.Client], tuple[str, str]],
         body: dict,
     ) -> None:
+        # /operations/general/malformed
         path, _ = create(demo)
 
         assert_error(demo.patch(path, json=body), 400)
@@ -108,6 +113,7 @@ class TestPatchTitle:
     def test_rejects_a_body_that_is_not_json(
         self, demo: httpx.Client, create: Callable[[httpx.Client], tuple[str, str]]
     ) -> None:
+        # /operations/general/malformed
         path, _ = create(demo)
 
         response = demo.patch(

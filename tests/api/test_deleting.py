@@ -5,6 +5,7 @@ from helpers import assert_error, create_board, create_card, create_column
 
 class TestDeleteBoards:
     def test_deletes_the_board(self, demo: httpx.Client) -> None:
+        # /boards/operations/delete/deleted
         board = create_board(demo)
         kept = create_board(demo)
 
@@ -17,7 +18,8 @@ class TestDeleteBoards:
         assert board["id"] not in ids
         assert kept["id"] in ids
 
-    def test_r5_deletes_its_columns_and_their_cards(self, demo: httpx.Client) -> None:
+    def test_deletes_its_columns_and_their_cards(self, demo: httpx.Client) -> None:
+        # /boards/operations/delete/cascade
         board = create_board(demo)
         column = create_column(demo, board["id"])
         card = create_card(demo, column["id"])
@@ -31,6 +33,7 @@ class TestDeleteBoards:
 
 class TestDeleteColumns:
     def test_deletes_the_column(self, demo: httpx.Client) -> None:
+        # /boards/operations/delete/deleted
         board = create_board(demo)
         column = create_column(demo, board["id"])
         kept = create_column(demo, board["id"])
@@ -42,7 +45,8 @@ class TestDeleteColumns:
         columns = demo.get(f"/api/boards/{board['id']}").json()["columns"]
         assert columns == [{"id": kept["id"], "title": "", "cards": []}]
 
-    def test_r5_deletes_its_cards(self, demo: httpx.Client) -> None:
+    def test_deletes_its_cards(self, demo: httpx.Client) -> None:
+        # /boards/operations/delete/cascade
         board = create_board(demo)
         column = create_column(demo, board["id"])
         card = create_card(demo, column["id"])
@@ -55,6 +59,7 @@ class TestDeleteColumns:
 
 class TestDeleteCards:
     def test_deletes_the_card(self, demo: httpx.Client) -> None:
+        # /boards/operations/delete/deleted
         board = create_board(demo)
         column = create_column(demo, board["id"])
         card = create_card(demo, column["id"])
@@ -70,6 +75,7 @@ class TestDeleteCards:
         ]
 
     def test_a_deleted_card_is_unknown(self, demo: httpx.Client) -> None:
+        # /boards/operations/delete/deleted, /boards/operations/general/unknown
         board = create_board(demo)
         column = create_column(demo, board["id"])
         card = create_card(demo, column["id"])
@@ -77,3 +83,30 @@ class TestDeleteCards:
         assert demo.delete(f"/api/cards/{card['id']}").status_code == 204
 
         assert_error(demo.delete(f"/api/cards/{card['id']}"), 404)
+
+
+class TestPositionsAfterDelete:
+    def test_columns_close_up(self, demo: httpx.Client) -> None:
+        # /boards/model/column/contiguous
+        board = create_board(demo)
+        a, b, c = (create_column(demo, board["id"])["id"] for _ in range(3))
+        assert demo.delete(f"/api/columns/{a}").status_code == 204
+
+        move = demo.post(f"/api/columns/{b}/move", json={"position": 2})
+
+        assert move.status_code == 204
+        columns = demo.get(f"/api/boards/{board['id']}").json()["columns"]
+        assert [column["id"] for column in columns] == [c, b]
+
+    def test_cards_close_up(self, demo: httpx.Client) -> None:
+        # /boards/model/card/contiguous
+        board = create_board(demo)
+        column = create_column(demo, board["id"])
+        a, b, c = (create_card(demo, column["id"])["id"] for _ in range(3))
+        assert demo.delete(f"/api/cards/{a}").status_code == 204
+
+        move = demo.post(f"/api/cards/{b}/move", json={"columnId": column["id"], "position": 2})
+
+        assert move.status_code == 204
+        columns = demo.get(f"/api/boards/{board['id']}").json()["columns"]
+        assert [card["id"] for card in columns[0]["cards"]] == [c, b]

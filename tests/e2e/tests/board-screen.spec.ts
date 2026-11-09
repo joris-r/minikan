@@ -2,6 +2,7 @@ import { test, expect } from './fixtures'
 import { apiAs, createBoard, createCard, createColumn, uniqueTitle } from './api'
 
 test.describe('Board screen', () => {
+  // /boards/ui/board-screen/board
   test('shows the title, the columns and their cards', async ({ page }) => {
     const api = await apiAs('demo')
     const id = await createBoard(api, 'Roadmap')
@@ -17,6 +18,7 @@ test.describe('Board screen', () => {
     }
   })
 
+  // /boards/ui/item/title
   test('an empty title is shown as "(Untitled)"', async ({ page }) => {
     const api = await apiAs('demo')
     const id = await createBoard(api, '')

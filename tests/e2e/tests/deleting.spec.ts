@@ -91,6 +91,7 @@ async function expectDeleted(page: Page, title: string): Promise<void> {
 
 for (const { name, open } of places) {
   test.describe(`Actions menu of ${name}`, () => {
+    // /boards/ui/item/article, /boards/ui/item/actions, /boards/ui/item/open-menu
     test('opens a menu holding "Delete"', async ({ page }) => {
       const title = await open(page, true)
 
@@ -103,7 +104,8 @@ for (const { name, open } of places) {
 }
 
 for (const { name, open } of places) {
-  test.describe(`R6: deleting ${name}`, () => {
+  test.describe(`Deleting ${name}`, () => {
+    // /boards/ui/actions-menu/delete, /boards/ui/actions-menu/gone
     test('when empty, deletes it at once', async ({ page }) => {
       const title = await open(page, false)
 
@@ -116,7 +118,8 @@ for (const { name, open } of places) {
 }
 
 for (const { name, open } of places.filter((p) => p.name !== 'a card')) {
-  test.describe(`R6: deleting ${name} that holds something`, () => {
+  test.describe(`Deleting ${name} that holds something`, () => {
+    // /boards/ui/actions-menu/delete, /boards/ui/delete-dialog/buttons, /boards/ui/delete-dialog/only
     test('opens a dialog and deletes nothing yet', async ({ page }) => {
       const title = await open(page, true)
       const sent = deletes(page)
@@ -130,6 +133,7 @@ for (const { name, open } of places.filter((p) => p.name !== 'a card')) {
       expect(sent).toEqual([])
     })
 
+    // /boards/ui/delete-dialog/delete, /boards/ui/actions-menu/gone
     test('"Delete" in the dialog deletes it', async ({ page }) => {
       const title = await open(page, true)
       await chooseDelete(page, title)
@@ -140,6 +144,21 @@ for (const { name, open } of places.filter((p) => p.name !== 'a card')) {
       await expectDeleted(page, title)
     })
 
+    // /boards/ui/delete-dialog/only
+    test('Escape on the dialog deletes nothing', async ({ page }) => {
+      const title = await open(page, true)
+      const sent = deletes(page)
+      await chooseDelete(page, title)
+      await expect(page.getByRole('dialog')).toBeVisible()
+
+      await page.keyboard.press('Escape')
+
+      await page.reload()
+      await expect(article(page, title)).toBeVisible()
+      expect(sent).toEqual([])
+    })
+
+    // /boards/ui/delete-dialog/cancel, /boards/ui/delete-dialog/only
     test('"Cancel" in the dialog keeps it and sends no request', async ({ page }) => {
       const title = await open(page, true)
       const sent = deletes(page)
@@ -157,6 +176,7 @@ for (const { name, open } of places.filter((p) => p.name !== 'a card')) {
 }
 
 test.describe('Deleting', () => {
+  // /boards/ui/actions-menu/gone
   test('a card leaves the other cards of its column', async ({ page }) => {
     const api = await apiAs('demo')
     const [deleted, kept] = [uniqueTitle(), uniqueTitle()]
@@ -172,6 +192,7 @@ test.describe('Deleting', () => {
     await expect(article(page, kept)).toBeVisible()
   })
 
+  // /boards/ui/actions-menu/board-shown
   test('the board on the board screen goes to the boards screen', async ({ page }) => {
     const title = await places[1].open(page, false)
 

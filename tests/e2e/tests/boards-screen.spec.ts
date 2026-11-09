@@ -2,6 +2,7 @@ import { test, expect } from './fixtures'
 import { apiAs, createBoard, uniqueTitle } from './api'
 
 test.describe('Boards screen', () => {
+  // /boards/ui/boards-screen/boards
   test('lists the boards of the user by title', async ({ page }) => {
     const title = uniqueTitle()
     await createBoard(await apiAs('demo'), title)
@@ -11,7 +12,8 @@ test.describe('Boards screen', () => {
     await expect(page.getByRole('link', { name: title })).toBeVisible()
   })
 
-  test('R1: does not list boards of another user', async ({ page }) => {
+  // /boards/ui/boards-screen/boards
+  test('does not list boards of another user', async ({ page }) => {
     const mine = uniqueTitle()
     const theirs = uniqueTitle()
     await createBoard(await apiAs('demo'), mine)
@@ -23,6 +25,7 @@ test.describe('Boards screen', () => {
     await expect(page.getByText(theirs)).toHaveCount(0)
   })
 
+  // /boards/ui/boards-screen/boards
   test('a board opens its board screen', async ({ page }) => {
     const title = uniqueTitle()
     const id = await createBoard(await apiAs('demo'), title)
@@ -34,6 +37,7 @@ test.describe('Boards screen', () => {
     await expect(page.getByText(title)).toBeVisible()
   })
 
+  // /boards/ui/item/title
   test('an empty title is shown as "(Untitled)"', async ({ page }) => {
     const id = await createBoard(await apiAs('demo'), '')
 

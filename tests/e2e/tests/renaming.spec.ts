@@ -16,6 +16,7 @@ async function openBoard(page: Page): Promise<Record<string, string>> {
 
 for (const name of ['board', 'column', 'card']) {
   test.describe(`Title input: renaming a ${name}`, () => {
+    // /boards/ui/item/edit
     test('clicking the title shows a focused input holding it', async ({ page }) => {
       const before = (await openBoard(page))[name]
 
@@ -26,7 +27,8 @@ for (const name of ['board', 'column', 'card']) {
       await expect(input).toHaveValue(before)
     })
 
-    test('R3: Enter records the title', async ({ page }) => {
+    // /boards/ui/title-input/record
+    test('Enter records the title', async ({ page }) => {
       const before = (await openBoard(page))[name]
       const title = uniqueTitle()
       await page.getByText(before, { exact: true }).click()
@@ -41,7 +43,8 @@ for (const name of ['board', 'column', 'card']) {
       await expect(page.getByText(before, { exact: true })).toHaveCount(0)
     })
 
-    test('R3: leaving the input records the title', async ({ page }) => {
+    // /boards/ui/title-input/record
+    test('leaving the input records the title', async ({ page }) => {
       const before = (await openBoard(page))[name]
       const title = uniqueTitle()
       await page.getByText(before, { exact: true }).click()
@@ -55,7 +58,8 @@ for (const name of ['board', 'column', 'card']) {
       await expect(page.getByText(title, { exact: true })).toBeVisible()
     })
 
-    test('R3: Enter on an emptied input records an empty title', async ({ page }) => {
+    // /boards/ui/title-input/record
+    test('Enter on an emptied input records an empty title', async ({ page }) => {
       const before = (await openBoard(page))[name]
       await page.getByText(before, { exact: true }).click()
 
@@ -68,7 +72,8 @@ for (const name of ['board', 'column', 'card']) {
       await expect(page.getByText('(Untitled)', { exact: true })).toHaveCount(1)
     })
 
-    test('R4: Escape keeps the title before editing and sends no request', async ({ page }) => {
+    // /boards/ui/title-input/escape
+    test('Escape keeps the title before editing and sends no request', async ({ page }) => {
       const before = (await openBoard(page))[name]
       const patches: string[] = []
       page.on('request', (request) => {

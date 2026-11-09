@@ -12,6 +12,7 @@ from helpers import (
 
 class TestGetBoards:
     def test_lists_the_boards_of_the_user(self, demo: httpx.Client) -> None:
+        # /boards/operations/list-boards/result
         board = create_board(demo)
         titled = create_board(demo)
         title = unique_title()
@@ -24,9 +25,10 @@ class TestGetBoards:
         assert {"id": board["id"], "title": ""} in boards
         assert {"id": titled["id"], "title": title} in boards
 
-    def test_r1_does_not_list_boards_of_another_user(
+    def test_does_not_list_boards_of_another_user(
         self, demo: httpx.Client, other: httpx.Client
     ) -> None:
+        # /boards/operations/list-boards/result
         board = create_board(other)
 
         response = demo.get("/api/boards")
@@ -37,6 +39,7 @@ class TestGetBoards:
 
 class TestPostBoards:
     def test_creates_an_empty_board(self, demo: httpx.Client) -> None:
+        # /boards/operations/add-board/added, /boards/model/title/fresh, /model/id/uuidv7
         response = demo.post("/api/boards")
 
         assert response.status_code == 201
@@ -46,11 +49,27 @@ class TestPostBoards:
         assert list(board) == ["id", "title"]
 
     def test_ids_are_unique(self, demo: httpx.Client) -> None:
+        # /model/id
         assert create_board(demo)["id"] != create_board(demo)["id"]
 
 
 class TestGetBoard:
+    def test_returns_the_cards_in_order(self, demo: httpx.Client) -> None:
+        # /boards/operations/show-board/result
+        board = create_board(demo)
+        column = create_column(demo, board["id"])
+        cards = [create_card(demo, column["id"])["id"] for _ in range(3)]
+        response = demo.post(
+            f"/api/cards/{cards[2]}/move", json={"columnId": column["id"], "position": 1}
+        )
+        assert response.status_code == 204
+
+        columns = demo.get(f"/api/boards/{board['id']}").json()["columns"]
+
+        assert [card["id"] for card in columns[0]["cards"]] == [cards[2], cards[0], cards[1]]
+
     def test_returns_the_board_with_its_columns_and_cards(self, demo: httpx.Client) -> None:
+        # /boards/operations/show-board/result, /operations/general/json
         board = create_board(demo)
         set_title(demo, f"/api/boards/{board['id']}", "Roadmap")
         todo = create_column(demo, board["id"])
@@ -77,6 +96,7 @@ class TestGetBoard:
         ]
 
     def test_a_new_board_has_no_columns(self, demo: httpx.Client) -> None:
+        # /boards/operations/add-board/added
         board = create_board(demo)
 
         response = demo.get(f"/api/boards/{board['id']}")

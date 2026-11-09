@@ -5,6 +5,7 @@ from helpers import create_board, create_column, is_uuid7
 
 class TestPostColumns:
     def test_creates_an_empty_column_in_the_board(self, demo: httpx.Client) -> None:
+        # /boards/operations/add-column/added, /boards/model/title/fresh, /model/id/uuidv7
         board = create_board(demo)
 
         response = demo.post(f"/api/boards/{board['id']}/columns")
@@ -20,6 +21,7 @@ class TestPostColumns:
 
 class TestPostCards:
     def test_creates_an_empty_card_in_the_column(self, demo: httpx.Client) -> None:
+        # /boards/operations/add-card/added, /boards/model/title/fresh, /model/id/uuidv7
         board = create_board(demo)
         column = create_column(demo, board["id"])
 
