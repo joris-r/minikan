@@ -96,9 +96,9 @@ Move card
 - R10: Renaming, moving or deleting a board, column or card is shown at
   once, before the API answers. Creating one is shown once the API has
   answered.
-- R11: When the request of a change fails, the screen then shown
-  reloads its data from the API and shows a banner, with the ARIA role
-  `alert`:
+- R11: When the request of a change fails other than with 401 (see
+  R14), the screen then shown reloads its data from the API and shows a
+  banner, with the ARIA role `alert`:
 
   ```
   The change could not be saved; the screen was reloaded.   [Close]

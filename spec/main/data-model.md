@@ -2,9 +2,16 @@
 
 - User
   - id
-  - name: non-empty, unique; the Bearer token of the user's requests
-  - Users named `demo` and `other` always exist; there is no way to
-    create users.
+  - name: non-empty, unique
+  - password
+  - Users named `demo` and `other` always exist, with the passwords
+    `demo-password` and `other-password`; there is no way to create
+    users.
+- Session
+  - token
+  - belongs to one User
+  - expiry
+  - A user may have several sessions at once.
 - Board
   - id
   - title

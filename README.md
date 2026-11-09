@@ -23,6 +23,9 @@ make frontend               # web app on http://localhost:5173
 make check                  # every check and test suite
 ```
 
+Log in as `demo` with the password `demo-password` (or `other` /
+`other-password`).
+
 Pick a pair with `BACKEND=<dir> FRONTEND=<dir>`, e.g.
 `make check BACKEND=py_litestar FRONTEND=ts_vue`.
 

@@ -16,6 +16,9 @@
   starts with storage holding only the seeded users, and discards it
   when it stops. The root runner uses it for the shared suites.
 - The root `Makefile` runs any pair: `make check BACKEND=<dir> FRONTEND=<dir>`.
+- A frozen implementation is no longer checked by the shared suites:
+  for it, the root `make check` runs only its own `check` target. Its
+  `Makefile` has a `frozen` target.
 - Everything runs locally and natively: no Docker, no remote CI.
 
 ## API
@@ -35,11 +38,17 @@
 - Every frontend has a health screen, `/health`, showing the answer of
   the health check as `API: ok`. The other screens do not show it
   (not testable).
-- Identity: every other request carries `Authorization: Bearer <token>`.
-  For now the token is the user's name, and it is not verified.
-- The frontends act as the user `demo`.
+- Identity: every request other than the health check and the login
+  carries the cookie `session`, set by the login.
 - Error responses are JSON: `{"error": "<message>"}`.
-- 401: the `Authorization` header is missing or names no existing user.
+- R15: 401: the cookie `session` is missing, or names no session or an
+  expired one (expired session not testable). An `Authorization`
+  header is ignored.
+- A session expires 7 days after login.
+- Session tokens are 32 bytes from a cryptographically secure random
+  generator. The storage keeps only their SHA-256 hash.
+- Passwords are stored as Argon2id hashes.
+- A login with an unknown name still computes an Argon2id hash.
 - Frontends call the API on their own origin under `/api`; in
   development their dev server proxies it to the backend at
   `MINIKAN_API_URL`.
@@ -59,6 +68,7 @@
     model (`SQLAlchemyAsyncRepositoryService`, with its repository),
     injected with `create_service_provider`.
   - Routes are grouped in one Litestar `Controller` per resource.
+  - Passwords are hashed with `argon2-cffi`.
   - Request and response bodies are `msgspec.Struct` types declared in
     the controllers' modules; handlers declare them as their parameter
     and return types, never dicts.
@@ -75,11 +85,12 @@
       app.py        # assembles the app: plugins, routers, error handlers, startup
       db.py         # database configuration, temporary storage, schema and seeded users
       models.py
-      accounts/     # User: service, current user dependency
+      accounts/     # User, Session: services, current session and user dependencies, login controllers
       boards/       # Board, Column, Card: services, controllers
     ```
-- `rs_axum`: Rust (stable, edition 2024), Axum on Tokio, serde, cargo,
-  rustfmt, Clippy. SQLite through SQLx, with plain SQL queries. The
+- `rs_axum`, frozen: it implements the API as it was before
+  `real-auth`. Rust (stable, edition 2024), Axum on Tokio, serde,
+  cargo, rustfmt, Clippy. SQLite through SQLx, with plain SQL queries. The
   schema is created at startup by a SQL script, without migrations.
   - The database is the file `minikan.db` in the backend's directory;
     with `TEMP_STORAGE=1`, an in-memory database.
@@ -107,6 +118,8 @@
   - Dialogs are HTML `<dialog>` elements, without a library.
   - Drag and drop uses the native HTML drag and drop API, without a
     library.
+  - Requests set no `Authorization` header; the browser sends the
+    session cookie.
 
 ## Tests and quality
 

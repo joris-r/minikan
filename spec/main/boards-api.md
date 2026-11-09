@@ -7,7 +7,7 @@ behave alike; its example shows one of them.
 
 ```http
 GET /api/boards
-Authorization: Bearer demo
+Cookie: session=Xq2v…
 ```
 
 ```http
@@ -25,7 +25,7 @@ HTTP/1.1 200 OK
 
 ```http
 POST /api/boards
-Authorization: Bearer demo
+Cookie: session=Xq2v…
 ```
 
 ```http
@@ -40,7 +40,7 @@ HTTP/1.1 201 Created
 
 ```http
 GET /api/boards/01a15a40-c3bc-7392-9c37-5876fc850924
-Authorization: Bearer demo
+Cookie: session=Xq2v…
 ```
 
 ```http
@@ -67,7 +67,7 @@ Create an empty column in a board, or an empty card in a column, like
 
 ```http
 POST /api/boards/01a15a40-c3bc-7392-9c37-5876fc850924/columns
-Authorization: Bearer demo
+Cookie: session=Xq2v…
 ```
 
 ```http
@@ -82,7 +82,7 @@ Set the title of a board, column or card:
 
 ```http
 PATCH /api/columns/01a15a40-c3bc-7392-9c37-587c8a9d939a
-Authorization: Bearer demo
+Cookie: session=Xq2v…
 Content-Type: application/json
 
 {"title": "Doing"}
@@ -100,7 +100,7 @@ Delete a board, column or card:
 
 ```http
 DELETE /api/columns/01a15a40-c3bc-7392-9c37-587c8a9d939a
-Authorization: Bearer demo
+Cookie: session=Xq2v…
 ```
 
 ```http
@@ -113,7 +113,7 @@ Move a column within its board:
 
 ```http
 POST /api/columns/01a15a40-c3bc-7392-9c37-587a01327a69/move
-Authorization: Bearer demo
+Cookie: session=Xq2v…
 Content-Type: application/json
 
 {"position": 1}
@@ -130,7 +130,7 @@ the same user:
 
 ```http
 POST /api/cards/01a15a40-c3bc-7392-9c37-587b93cbbd02/move
-Authorization: Bearer demo
+Cookie: session=Xq2v…
 Content-Type: application/json
 
 {"columnId": "01a15a40-c3bc-7392-9c37-587a01327a69", "position": 2}
