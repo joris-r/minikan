@@ -1,4 +1,5 @@
 import { onMounted, onUnmounted, ref } from 'vue'
+import { Unauthorized } from './api'
 
 // The message of the banner, if it is shown.
 export const notice = ref<string>()
@@ -17,7 +18,8 @@ window.addEventListener('pagehide', () => (leaving = true))
 window.addEventListener('pageshow', () => (leaving = false))
 
 // Sends the request of a change. On success, returns its answer and removes the banner; on failure,
-// shows the banner and reloads the screen then shown, and returns undefined.
+// shows the banner and reloads the screen then shown, and returns undefined. A 401 shows nothing:
+// the app goes to the login screen.
 export async function send<T>(request: () => Promise<T>): Promise<T | undefined> {
   const sent = request()
   pending.add(sent)
@@ -26,9 +28,9 @@ export async function send<T>(request: () => Promise<T>): Promise<T | undefined>
     pending.delete(sent)
     notice.value = undefined
     return answer
-  } catch {
+  } catch (error) {
     pending.delete(sent)
-    if (leaving) return undefined
+    if (leaving || error instanceof Unauthorized) return undefined
     notice.value = failedChange
     await reloadScreen?.()
     return undefined
@@ -42,8 +44,8 @@ export function useScreen(load: () => Promise<void>, failure: string): void {
     await Promise.allSettled(pending)
     try {
       await load()
-    } catch {
-      if (!leaving) notice.value = failure
+    } catch (error) {
+      if (!leaving && !(error instanceof Unauthorized)) notice.value = failure
     }
   }
   onMounted(() => {

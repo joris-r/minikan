@@ -4,7 +4,13 @@ from litestar import Litestar, Request, Response, Router, get
 from litestar.di import Provide
 from litestar.exceptions import HTTPException, NotFoundException
 
-from minikan.accounts.dependencies import current_user, provide_users_service
+from minikan.accounts.controllers import LoginController, SessionController
+from minikan.accounts.dependencies import (
+    current_session,
+    current_user,
+    provide_sessions_service,
+    provide_users_service,
+)
 from minikan.boards.controllers import BoardController, CardController, ColumnController
 from minikan.db import create_storage, db_config, remove_temp_storage
 
@@ -29,11 +35,21 @@ def internal_error_handler(_: Request, __: Exception) -> Response[dict[str, str]
 
 authenticated = Router(
     path="/",
-    dependencies={"users_service": provide_users_service, "user": Provide(current_user)},
-    route_handlers=[BoardController, ColumnController, CardController],
+    dependencies={
+        "session": Provide(current_session),
+        "user": Provide(current_user),
+    },
+    route_handlers=[SessionController, BoardController, ColumnController, CardController],
 )
 
-api = Router(path="/api", route_handlers=[health, authenticated])
+api = Router(
+    path="/api",
+    dependencies={
+        "users_service": provide_users_service,
+        "sessions_service": provide_sessions_service,
+    },
+    route_handlers=[health, LoginController, authenticated],
+)
 
 app = Litestar(
     route_handlers=[api],

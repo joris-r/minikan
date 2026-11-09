@@ -2,6 +2,7 @@
 
 - Registration: a sign-up screen and endpoint, with password rules.
 - Security: limit login attempts against brute force.
+- Security: rename the session cookie to `__Host-session` (path `/`), so no other cookie on the host can shadow it (cookie tossing, stale dev cookies on localhost).
 - Sharing boards between users.
 - Real-time updates between clients viewing the same board (needs sharing).
 - Card description and tags, with filtering by tag.

@@ -8,10 +8,11 @@ from advanced_alchemy.base import orm_registry
 from advanced_alchemy.extensions.litestar import AsyncSessionConfig, SQLAlchemyAsyncConfig
 from sqlalchemy import event
 
-from minikan.accounts.services import UserService
+from minikan.accounts.services import UserService, hash_password
 from minikan.models import User
 
-SEEDED_USERS = ["demo", "other"]
+# Name and password of each seeded user.
+SEEDED_USERS = {"demo": "demo-password", "other": "other-password"}
 
 TEMP_STORAGE = os.environ.get("TEMP_STORAGE") == "1"
 DATABASE_PATH = (
@@ -40,7 +41,11 @@ async def create_storage() -> None:
         await conn.run_sync(orm_registry.metadata.create_all)
     async with UserService.new(config=db_config) as users_service:
         existing = {user.name for user in await users_service.get_many()}
-        missing = [User(name=name) for name in SEEDED_USERS if name not in existing]
+        missing = [
+            User(name=name, password_hash=hash_password(password))
+            for name, password in SEEDED_USERS.items()
+            if name not in existing
+        ]
         if missing:
             await users_service.create_many(missing, auto_commit=True)
 

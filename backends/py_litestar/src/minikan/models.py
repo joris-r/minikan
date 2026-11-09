@@ -1,6 +1,8 @@
+from datetime import datetime
 from uuid import UUID
 
 from advanced_alchemy.base import UUIDv7Base
+from advanced_alchemy.types import DateTimeUTC
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.ext.orderinglist import OrderingList, ordering_list
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -10,6 +12,15 @@ TITLE_MAX_LENGTH = 100
 
 class User(UUIDv7Base):
     name: Mapped[str] = mapped_column(String, unique=True)
+    password_hash: Mapped[str] = mapped_column(String)
+
+
+class Session(UUIDv7Base):
+    # SHA-256 of the token, in hex: the token itself is never stored.
+    token_hash: Mapped[str] = mapped_column(String, unique=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"))
+    expires_at: Mapped[datetime] = mapped_column(DateTimeUTC)
+    user: Mapped[User] = relationship(lazy="raise")
 
 
 class Board(UUIDv7Base):

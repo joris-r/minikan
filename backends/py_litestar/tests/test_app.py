@@ -11,25 +11,68 @@ def test_health() -> None:
     assert response.status_code == 200
 
 
-def test_seeded_users_can_authenticate() -> None:
+def log_in(client: TestClient, name: str) -> str:
+    response = client.post("/api/login", json={"name": name, "password": f"{name}-password"})
+    assert response.status_code == 204
+    return response.cookies["session"]
+
+
+def test_seeded_users_can_log_in() -> None:
     with TestClient(app=app) as client:
         for name in ["demo", "other"]:
-            response = client.get("/api/boards", headers={"Authorization": f"Bearer {name}"})
-            assert response.status_code == 200
+            token = log_in(client, name)
+            response = client.get("/api/session", headers={"Cookie": f"session={token}"})
+            assert response.json() == {"name": name}
 
 
 def test_a_restart_does_not_seed_users_twice() -> None:
     with TestClient(app=app):
         pass
     with TestClient(app=app) as client:
-        response = client.get("/api/boards", headers={"Authorization": "Bearer demo"})
-    assert response.status_code == 200
+        log_in(client, "demo")
 
 
-def test_the_authorization_scheme_must_be_bearer() -> None:
+def test_an_expired_session_is_rejected() -> None:
+    from datetime import UTC, datetime
+
+    from sqlalchemy import update
+
+    from minikan.accounts.services import hash_token
+    from minikan.db import db_config
+    from minikan.models import Session
+
+    async def expire(token: str) -> None:
+        async with db_config.get_session() as db:
+            await db.execute(
+                update(Session)
+                .where(Session.token_hash == hash_token(token))
+                .values(expires_at=datetime.now(UTC))
+            )
+            await db.commit()
+
     with TestClient(app=app) as client:
-        response = client.get("/api/boards", headers={"Authorization": "Basic demo"})
+        token = log_in(client, "demo")
+        client.blocking_portal.call(expire, token)
+        response = client.get("/api/session", headers={"Cookie": f"session={token}"})
     assert response.status_code == 401
+
+
+def test_the_storage_keeps_only_a_hash_of_the_token() -> None:
+    from sqlalchemy import select
+
+    from minikan.accounts.services import hash_token
+    from minikan.db import db_config
+    from minikan.models import Session
+
+    async def stored() -> list[str]:
+        async with db_config.get_session() as db:
+            return list((await db.scalars(select(Session.token_hash))).all())
+
+    with TestClient(app=app) as client:
+        token = log_in(client, "demo")
+        hashes = client.blocking_portal.call(stored)
+    assert hash_token(token) in hashes
+    assert token not in hashes
 
 
 def test_an_unknown_route_answers_a_json_error() -> None:

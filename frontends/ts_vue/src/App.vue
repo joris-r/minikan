@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
+import HeaderBar from './components/HeaderBar.vue'
 import NoticeBanner from './components/NoticeBanner.vue'
+
+const route = useRoute()
 </script>
 
 <template>
-  <header>
-    <RouterLink to="/">minikan</RouterLink>
-  </header>
+  <HeaderBar v-if="route.meta.header" />
   <NoticeBanner />
   <main>
     <RouterView />
@@ -16,11 +18,6 @@ import NoticeBanner from './components/NoticeBanner.vue'
 body {
   font-family: system-ui, sans-serif;
   margin: 0;
-}
-
-header {
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid #ddd;
 }
 
 main {

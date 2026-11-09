@@ -13,7 +13,7 @@ describe('App', () => {
 
     const wrapper = mount(App, { global: { plugins: [router] } })
 
-    expect(wrapper.text()).toContain('minikan')
+    expect(wrapper.text()).toContain('Minikan')
     vi.unstubAllGlobals()
   })
 })

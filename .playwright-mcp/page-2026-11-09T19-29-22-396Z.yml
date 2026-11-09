@@ -1,0 +1,17 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e23]:
+      - link "Minikan" [ref=e24] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e25]: demo
+      - button "Log out" [ref=e26]
+    - main [ref=e3]:
+      - heading "Boards" [level=1] [ref=e27]
+      - list
+      - button "Add board" [ref=e28] [cursor=pointer]:
+        - img [ref=e29]
+  - generic [ref=e11]:
+    - generic "Toggle devtools panel" [ref=e12] [cursor=pointer]:
+      - img [ref=e13]
+    - generic "Toggle Component Inspector" [ref=e18] [cursor=pointer]:
+      - img [ref=e19]

@@ -9,6 +9,8 @@ TEST_WEB_PORT ?= 5174
 
 # A partial backend prints its scope; a complete one has no `scope` target.
 SCOPE := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C backends/$(BACKEND) scope 2>/dev/null)
+# A frozen backend prints `frozen`; for it, check runs only its own check target.
+FROZEN := $(shell MAKEFLAGS= $(MAKE) -s --no-print-directory -C backends/$(BACKEND) frozen 2>/dev/null)
 API_TESTS := $(if $(SCOPE),$(SCOPE:%=tests/api/test_%.py),tests/api)
 E2E_TESTS := $(SCOPE:%=tests/%.spec.ts)
 
@@ -24,7 +26,7 @@ backend:
 frontend:
 	MINIKAN_API_URL=http://localhost:$(API_PORT) $(MAKE) -C frontends/$(FRONTEND) run PORT=$(WEB_PORT)
 
-check: check-backend check-frontend test-api test-e2e
+check: $(if $(FROZEN),check-backend,check-backend check-frontend test-api test-e2e)
 
 check-backend:
 	$(MAKE) -C backends/$(BACKEND) check
