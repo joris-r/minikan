@@ -24,27 +24,7 @@
 ## API
 
 - Every pair of backend and frontend is compatible: all backends expose
-  the same HTTP API, under `/api`.
-- Bodies are JSON. Field names are in camelCase.
-- Health check, without authentication:
-
-  ```http
-  GET /api/health
-
-  200 OK
-  {"status": "ok"}
-  ```
-
-- Every frontend has a health screen, `/health`, showing the answer of
-  the health check as `API: ok`. The other screens do not show it
-  (not testable).
-- Identity: every request other than the health check and the login
-  carries the cookie `session`, set by the login.
-- Error responses are JSON: `{"error": "<message>"}`.
-- R15: 401: the cookie `session` is missing, or names no session or an
-  expired one (expired session not testable). An `Authorization`
-  header is ignored.
-- A session expires 7 days after login.
+  the same HTTP API.
 - Session tokens are 32 bytes from a cryptographically secure random
   generator. The storage keeps only their SHA-256 hash.
 - Passwords are stored as Argon2id hashes.

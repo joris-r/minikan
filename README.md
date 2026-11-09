@@ -3,7 +3,7 @@
 A small Kanban web service, used as a learning project: one shared
 functional specification and API, implemented in several backend and
 frontend technologies. Any frontend works with any backend. It is also
-a test bed for the Dev43 process (see `CLAUDE.md` and `spec/`).
+a test bed for the Dev43 process (see `CLAUDE.md` and `docs/`).
 
 ## Implementations
 

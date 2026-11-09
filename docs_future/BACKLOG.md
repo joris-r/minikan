@@ -14,7 +14,7 @@
 - API contract: a shared OpenAPI file, checked against every backend, would generate the frontends' types.
 - Frontend ts_vue: the board screen's move logic (drag and drop, menu, dialog) would move to a composable, shrinking BoardView; a reload after a failed change should also close the open dialog and drop the dragged item.
 - Frontend ts_vue: the Actions menu declares `role="menu"` but lacks the WAI-ARIA menu button keyboard pattern (arrow keys, focus into the menu on open).
-- Tests: property-based tests (Hypothesis) would check rules such as R2 as invariants over generated sequences of API calls.
+- Tests: property-based tests (Hypothesis) would check rules such as /boards/operations/general/owner as invariants over generated sequences of API calls.
 - Process: some increments with the roles reversed, where the human writes the Implementation or the Tests and the agent reviews.
 - Backend java_spring: Spring Boot backend, checked by the shared e2e suite.
 - Backend cs_aspnet: ASP.NET Core backend, checked by the shared e2e suite.
