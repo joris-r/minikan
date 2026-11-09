@@ -19,20 +19,3 @@ human's learning goals, by priority:
 4. Java Spring Boot.
 5. C#.
 6. Angular, for frontend development.
-
-Having fun counts too: the rs_axum backend stays, outside these goals.
-
-The human is new to the frameworks and tools used here, and learns by
-doing more than by reading.
-
-- In each Verification hand-over of the Tests and Implementation
-  phases, name one idiom of the diff worth understanding (file and
-  line), preferably one serving these goals, and a security point when
-  the diff handles input, storage or HTTP. Ask the human what it does
-  or why it is there; explain once they have answered. If the human
-  asks a clarifying question, answer it in a line or two and ask
-  again; if their answer skips part of the question, restate that
-  part. Never answer it for them.
-- In each Integration retrospective, propose one subject the human
-  could write about on their blog. The human writes the posts; the
-  agent only reviews them for accuracy and clarity.
