@@ -39,7 +39,7 @@ class TestGetBoards:
 
 class TestPostBoards:
     def test_creates_an_empty_board(self, demo: httpx.Client) -> None:
-        # /boards/operations/add-board/added, /boards/model/title/fresh, /model/id/uuidv7
+        # /boards/operations/add-board/added, /model/id/uuidv7
         response = demo.post("/api/boards")
 
         assert response.status_code == 201

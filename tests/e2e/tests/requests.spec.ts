@@ -389,6 +389,48 @@ test.describe('Changes and failures: the banner', () => {
     await expect(banner(page)).toContainText('The board could not be loaded.')
   })
 
+  // /boards/ui/board-screen/load-failed
+  test('a failed first load of the board screen shows only the header bar', async ({ page }) => {
+    const id = await createBoard(await apiAs('demo'), uniqueTitle())
+    await fail(page, 'GET', `**/api/boards/${id}`)
+
+    await page.goto(`/boards/${id}`)
+
+    await expect(banner(page)).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Log out' })).toBeVisible()
+    await expect(page.getByRole('article')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Add column' })).toHaveCount(0)
+  })
+
+  // /boards/ui/banner/place
+  test('on the board screen, the banner is below the header bar', async ({ page }) => {
+    const id = await createBoard(await apiAs('demo'), uniqueTitle())
+    await fail(page, 'GET', `**/api/boards/${id}`)
+
+    await page.goto(`/boards/${id}`)
+
+    await expect(banner(page)).toBeVisible()
+    const header = (await page.locator('header').boundingBox())!
+    const box = (await banner(page).boundingBox())!
+    expect(box.y).toBeGreaterThanOrEqual(header.y + header.height)
+  })
+
+  // /boards/ui/actions-menu/delete, /boards/ui/changes/failed
+  test('deleting a board on the boards screen whose show board fails', async ({ page }) => {
+    const board = await openBoards(page)
+    const deletes: string[] = []
+    page.on('request', (request) => {
+      if (request.method() === 'DELETE') deletes.push(request.url())
+    })
+    await fail(page, 'GET', /\/api\/boards\/[^/]+$/)
+
+    await choose(page, board, 'Delete')
+
+    await expect(banner(page)).toContainText(failedChange)
+    await expect(article(page, board)).toBeVisible()
+    expect(deletes).toEqual([])
+  })
+
   // /boards/ui/boards-screen/load-failed, /boards/ui/banner/message
   test('a failed first load of the boards screen', async ({ page }) => {
     await fail(page, 'GET', '**/api/boards')

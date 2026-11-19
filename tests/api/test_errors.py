@@ -133,3 +133,38 @@ class TestNotFound:
                 {"id": ids["column"], "title": "", "cards": [{"id": ids["card"], "title": ""}]}
             ],
         }
+
+
+WITH_BODY = [e for e in ENDPOINTS if e[0] == "PATCH" or e[1].endswith("/move")]
+
+
+# Bodies refused by /operations/general/malformed: not JSON, a field missing, a value of the
+# wrong type.
+MALFORMED = [b"not json", b"{}", b'{"title": 1, "position": "x", "columnId": 1}']
+
+# The cookies of a request without a session: none, and one naming no session.
+NO_SESSION = [{}, {"Cookie": "session=unknown"}]
+
+
+class TestMalformedFirst:
+    @pytest.mark.parametrize("headers", NO_SESSION, ids=["no cookie", "unknown session"])
+    @pytest.mark.parametrize("body", MALFORMED, ids=["not json", "missing", "wrong type"])
+    @pytest.mark.parametrize(("method", "path"), WITH_BODY, ids=_ids(WITH_BODY))
+    def test_a_malformed_body_without_a_session(
+        self,
+        api: httpx.Client,
+        demo: httpx.Client,
+        method: str,
+        path: str,
+        body: bytes,
+        headers: dict[str, str],
+    ) -> None:
+        # /accounts/operations/general/first, /operations/general/malformed
+        response = api.request(
+            method,
+            path.format(**_entities(demo)),
+            content=body,
+            headers={"Content-Type": "application/json", **headers},
+        )
+
+        assert_error(response, 400)

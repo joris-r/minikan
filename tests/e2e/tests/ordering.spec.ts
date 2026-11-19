@@ -76,7 +76,35 @@ test.describe('Board screen: order', () => {
   })
 })
 
+// Drags an element by its title over another, then drops it back onto itself.
+async function dragBack(page: Page, source: string, over: string) {
+  const element = page.getByText(source, { exact: true })
+  await element.hover()
+  await page.mouse.down()
+  await page.getByText(over, { exact: true }).hover()
+  await element.hover()
+  await page.mouse.up()
+}
+
 test.describe('Drag and drop', () => {
+  // /boards/ui/drag-and-drop/itself
+  test('a column or card dropped onto itself sends no move', async ({ page }) => {
+    const board = await openBoard(page, [2, 0])
+    const [a, b] = board.columns.map((column) => column.title) as [string, string]
+    const [x, y] = board.columns[0]!.cards as [string, string]
+    const moves: string[] = []
+    page.on('request', (request) => {
+      if (request.url().endsWith('/move')) moves.push(request.url())
+    })
+
+    await dragBack(page, a, b)
+    await dragBack(page, x, y)
+
+    await expectOrder(page, board.title, [a, b], [a, b])
+    await expect.poll(() => order(page, a, [x, y])).toEqual([x, y])
+    expect(moves).toEqual([])
+  })
+
   // /boards/ui/drag-and-drop/onto
   test('a column dropped onto a later column takes its position', async ({ page }) => {
     const board = await openBoard(page, [0, 0, 0])

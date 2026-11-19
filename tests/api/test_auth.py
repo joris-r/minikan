@@ -6,7 +6,7 @@ from helpers import assert_error, client_for, log_in, session_cookie
 
 class TestPostLogin:
     def test_sets_the_session_cookie(self, api: httpx.Client) -> None:
-        # /accounts/operations/log-in/accepted, /accounts/operations/general/session
+        # /accounts/operations/log-in/accepted
         response = api.post("/api/login", json={"name": "demo", "password": "demo-password"})
 
         assert response.status_code == 204
@@ -19,7 +19,7 @@ class TestPostLogin:
         assert cookie["max-age"] == "604800"
 
     def test_the_session_identifies_the_user(self) -> None:
-        # /accounts/operations/log-in/accepted, /accounts/model/user/seeded
+        # /accounts/operations/log-in/accepted, /operations/initial-state/users
         with client_for(log_in("other", "other-password")) as client:
             assert client.get("/api/session").json() == {"name": "other"}
 
@@ -125,7 +125,7 @@ class TestGetSession:
         assert response.json() == {"name": "demo"}
 
     def test_returns_the_user_of_the_session(self, demo: httpx.Client) -> None:
-        # /accounts/operations/show-session/result, /accounts/model/user/seeded
+        # /accounts/operations/show-session/result, /operations/initial-state/users
         response = demo.get("/api/session")
 
         assert response.status_code == 200

@@ -90,7 +90,7 @@ class TestPatchTitle:
     def test_rejects_101_characters(
         self, demo: httpx.Client, create: Callable[[httpx.Client], tuple[str, str]]
     ) -> None:
-        # /boards/operations/rename/long, /boards/model/title/length
+        # /operations/general/malformed, /boards/model/title/length
         path, board_id = create(demo)
 
         response = demo.patch(path, json={"title": "x" * 101})

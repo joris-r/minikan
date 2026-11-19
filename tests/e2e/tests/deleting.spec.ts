@@ -119,6 +119,19 @@ for (const { name, open } of places) {
 
 for (const { name, open } of places.filter((p) => p.name !== 'a card')) {
   test.describe(`Deleting ${name} that holds something`, () => {
+    // /boards/ui/delete-dialog/question
+    test('the dialog asks the question of its kind', async ({ page }) => {
+      const title = await open(page, true)
+      const question =
+        name === 'a column'
+          ? 'Delete this column and its cards?'
+          : 'Delete this board, its columns and their cards?'
+
+      await chooseDelete(page, title)
+
+      await expect(page.getByRole('dialog').getByText(question, { exact: true })).toBeVisible()
+    })
+
     // /boards/ui/actions-menu/delete, /boards/ui/delete-dialog/buttons, /boards/ui/delete-dialog/only
     test('opens a dialog and deletes nothing yet', async ({ page }) => {
       const title = await open(page, true)
@@ -144,7 +157,7 @@ for (const { name, open } of places.filter((p) => p.name !== 'a card')) {
       await expectDeleted(page, title)
     })
 
-    // /boards/ui/delete-dialog/only
+    // /boards/ui/delete-dialog/cancel, /boards/ui/delete-dialog/only
     test('Escape on the dialog deletes nothing', async ({ page }) => {
       const title = await open(page, true)
       const sent = deletes(page)

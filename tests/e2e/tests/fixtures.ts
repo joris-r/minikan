@@ -70,6 +70,16 @@ export async function fail(page: Page, method: string, url: string | RegExp): Pr
   })
 }
 
+// Makes the page's `method` requests to a URL matching `url` get no answer.
+export async function abort(page: Page, method: string, url: string | RegExp): Promise<void> {
+  if (!failed.has(page)) failed.set(page, new Set())
+  await page.route(url, async (route) => {
+    if (route.request().method() !== method) return route.fallback()
+    failed.get(page)!.add(route.request().url())
+    await route.abort()
+  })
+}
+
 export type Held = {
   // Resolved once the page has sent the request, which is held.
   sent: Promise<void>
