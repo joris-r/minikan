@@ -2,17 +2,15 @@
 
 ## Title
 
-The name of a board, column or card.
+The name of a board, column or card: a string.
 
-- [length] A string of 0 to 100 characters.
-- [fresh] Empty at creation.
+- [length] 0 to 100 characters.
 
 ## Board
 
 - `id: /model/id`.
 - `title: /boards/model/title`.
 - `user: /accounts/model/user`, its owner.
-- Boards have no specified order.
 
 ## Column
 

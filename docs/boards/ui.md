@@ -4,7 +4,10 @@
 
 Shows, left to right:
 - [home] "Minikan", a link to the Boards screen;
-- [user] the name of the logged-in user, then a "Log out" button.
+- [user] the name of the user of /accounts/operations/show-session,
+  then a "Log out" button;
+- [no-name] Show session failed other than with 401: no name, then the
+  "Log out" button.
 
 Actions:
 - [log-out] "Log out": runs /accounts/operations/log-out.
@@ -18,13 +21,14 @@ At `/`.
 
 Shows:
 - [header] the Header bar, above the rest;
-- [boards] the boards of /boards/operations/list-boards, each an Item
-  that opens its Board screen;
+- [heading] the heading "Boards";
+- [boards] the boards of /boards/operations/list-boards, each an Item;
 - [add] an icon button labelled "Add board".
-- [load-failed] Its first load failed: the Banner reads "The boards
-  could not be loaded."
+- [load-failed] Its first load failed other than with 401: the Banner
+  reads "The boards could not be loaded."
 
 Actions:
+- [open] A click on the title of a board: goes to its Board screen.
 - [add-board] "Add board": runs /boards/operations/add-board.
 
 ## Board screen
@@ -38,8 +42,8 @@ Shows:
   Item (layout not testable);
 - [add] an icon button labelled "Add column";
 - [add-card-button] in each column, an icon button labelled "Add card".
-- [load-failed] Its first load failed: the Banner reads "The board
-  could not be loaded."
+- [load-failed] Its first load failed other than with 401: only the
+  Header bar, and the Banner reads "The board could not be loaded."
 
 Actions:
 - [add-column] "Add column": runs /boards/operations/add-column.
@@ -52,7 +56,7 @@ A board, column or card on a screen.
 
 Shows:
 - [article] an element with the ARIA role `article`, named by its
-  title;
+  title as shown;
 - [title] its title; an empty title reads "(Untitled)";
 - [actions] right after its title, an icon button labelled "Actions".
 
@@ -83,7 +87,10 @@ Actions:
 - [move-to] "Move to column": opens the Move dialog.
 - [delete] "Delete": runs /boards/operations/delete, after the Delete
   dialog for a board or column holding a column or card; at once for
-  an empty board or column, and for a card.
+  an empty board or column, and for a card. On the Boards screen, it
+  first runs /boards/operations/show-board on the board, to know its
+  columns; that failing is a failed change, as
+  /boards/ui/changes/failed.
   - [gone] The Item is no longer shown.
   - [board-shown] Deleting the board of the Board screen: goes to the
     Boards screen.
@@ -101,11 +108,13 @@ Actions:
 A modal dialog (modal not testable).
 
 Shows:
+- [question] "Delete this board, its columns and their cards?" for a
+  board, "Delete this column and its cards?" for a column;
 - [buttons] a "Delete" and a "Cancel" button.
 
 Actions:
 - [delete] "Delete": deletes.
-- [cancel] "Cancel": closes the dialog; nothing is deleted.
+- [cancel] "Cancel", or Escape: closes the dialog; nothing is deleted.
 - [only] Nothing but "Delete" deletes.
 
 ## Move dialog
@@ -135,10 +144,12 @@ Actions, on the Board screen:
   /boards/operations/move-card, to that element's position.
 - [column-end] A card dragged onto a column, outside its cards: runs
   /boards/operations/move-card, last in that column.
+- [itself] A column or card dropped onto itself: nothing runs.
 
 ## Title input
 
-A focused text input, in place of an Item's title.
+A focused text input, in place of an Item's title, taking at most 100
+characters.
 
 Actions:
 - [record] Enter, or focus leaving the input: runs
@@ -151,15 +162,18 @@ Actions:
 
 - [shown] A rename, move or delete is shown at once, before the API
   answers; a creation, once it has answered.
-- [failed] Its request failed other than with 401: the screen then
-  shown reloads its data from the API, and the Banner reads "The
-  change could not be saved; the screen was reloaded."
+- [failed] The request of a change, a creation included, failed other
+  than with 401: the screen then shown reloads its data from the API,
+  and the Banner reads "The change could not be saved; the screen was
+  reloaded."
 - [unauthenticated] On the Boards and Board screens, any API answer
   401, the first load included: goes to `/login`, without the Banner.
 
 ## Banner
 
 Shows, with the ARIA role `alert`:
+- [place] on the Boards and Board screens, below the Header bar, above
+  the rest;
 - [message] After a failure: its message, then a "Close" button.
   - [closed] "Close" clicked, or a later change whose request succeeds:
     hidden.

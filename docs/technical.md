@@ -27,6 +27,7 @@
   the same HTTP API.
 - Session tokens are 32 bytes from a cryptographically secure random
   generator. The storage keeps only their SHA-256 hash.
+- The messages of refused operations are specified.
 - Passwords are stored as Argon2id hashes.
 - A login with an unknown name still computes an Argon2id hash.
 - Frontends call the API on their own origin under `/api`; in
@@ -103,6 +104,12 @@
 
 ## Tests and quality
 
+- Test levels:
+  - Unit: an implementation's internals, in the idiom of its stack.
+  - API, `tests/api`: the operations, their results and the state,
+    over HTTP.
+  - End-to-end, `tests/e2e`: the display and the triggers, in a
+    browser.
 - The shared suites check the functional specification and the API,
   against any implementation:
   - `tests/api`: Python, pytest and httpx, against the backend at
@@ -119,6 +126,4 @@
   partial implementation has a scope, given in its entry under
   Implementations; for it, `make check` runs only the shared tests of
   that scope, in both suites.
-- Each implementation has its own unit tests for its internals, in the
-  idiom of its stack.
 - `make check` passes before every commit.
