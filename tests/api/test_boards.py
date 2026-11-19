@@ -49,7 +49,7 @@ class TestPostBoards:
         assert list(board) == ["id", "title"]
 
     def test_ids_are_unique(self, demo: httpx.Client) -> None:
-        # /model/id
+        # /boards/operations/add-board/added
         assert create_board(demo)["id"] != create_board(demo)["id"]
 
 

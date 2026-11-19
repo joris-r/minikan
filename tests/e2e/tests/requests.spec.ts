@@ -403,16 +403,19 @@ test.describe('Changes and failures: the banner', () => {
   })
 
   // /boards/ui/banner/place
-  test('on the board screen, the banner is below the header bar', async ({ page }) => {
-    const id = await createBoard(await apiAs('demo'), uniqueTitle())
-    await fail(page, 'GET', `**/api/boards/${id}`)
-
-    await page.goto(`/boards/${id}`)
+  test('on the board screen, the banner is below the header bar and above the board', async ({
+    page,
+  }) => {
+    const opened = await openBoard(page, [])
+    await fail(page, 'PATCH', `**/api/boards/${opened.id}`)
+    await rename(page, opened.board, uniqueTitle())
 
     await expect(banner(page)).toBeVisible()
     const header = (await page.locator('header').boundingBox())!
     const box = (await banner(page).boundingBox())!
+    const board = (await page.getByRole('article').first().boundingBox())!
     expect(box.y).toBeGreaterThanOrEqual(header.y + header.height)
+    expect(board.y).toBeGreaterThanOrEqual(box.y + box.height)
   })
 
   // /boards/ui/actions-menu/delete, /boards/ui/changes/failed

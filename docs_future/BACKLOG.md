@@ -24,3 +24,6 @@
 - Tests e2e: renaming.spec reloads right after an optimistic rename and can race the PATCH; wait for the response before reloading.
 - Tests: the order and placement statements of the UI (header above the rest, "Actions" right after the title, login message below the form, banner message before "Close") get a test, or are marked layout not testable.
 - Tests: remove the e2e tests that only repeat what an API test checks.
+- Frontend ts_vue: a Banner shown at a successful Log out stays on the Login screen, and the login message sits above the "Log in" button where the specification puts it below.
+- Code: comments still cite Dev43 3 rule IDs (e.g. "R8" in py_litestar boards/services.py, "R9" in ts_vue BoardView.vue); cite the paths of docs/ instead, or drop them.
+- Specification: the message of /operations/general/malformed ("naming the error") is untestable as written; pin down its wording or leave it free.

@@ -61,7 +61,7 @@ class TestUnauthorized:
     def test_rejects_a_missing_session_cookie(
         self, api: httpx.Client, demo: httpx.Client, method: str, path: str
     ) -> None:
-        # /accounts/operations/general/session, /accounts/operations/general/unauthenticated
+        # /accounts/operations/general/unauthenticated
         assert_error(_request(api, method, path, _entities(demo)), 401)
 
     @pytest.mark.parametrize(("method", "path"), ENDPOINTS, ids=_ids(ENDPOINTS))
@@ -138,33 +138,85 @@ class TestNotFound:
 WITH_BODY = [e for e in ENDPOINTS if e[0] == "PATCH" or e[1].endswith("/move")]
 
 
-# Bodies refused by /operations/general/malformed: not JSON, a field missing, a value of the
-# wrong type.
-MALFORMED = [b"not json", b"{}", b'{"title": 1, "position": "x", "columnId": 1}']
-
 # The cookies of a request without a session: none, and one naming no session.
 NO_SESSION = [{}, {"Cookie": "session=unknown"}]
+NO_SESSION_IDS = ["no cookie", "unknown session"]
+
+# Bodies that are JSON but refused by /operations/general/malformed: a field missing, a value of
+# the wrong type.
+BAD_FIELDS = [b"{}", b'{"title": 1, "position": "x", "columnId": 1}']
+BAD_FIELDS_IDS = ["missing", "wrong type"]
+
+# Every body refused by /operations/general/malformed.
+MALFORMED = [b"not json", *BAD_FIELDS]
+MALFORMED_IDS = ["not json", *BAD_FIELDS_IDS]
 
 
-class TestMalformedFirst:
-    @pytest.mark.parametrize("headers", NO_SESSION, ids=["no cookie", "unknown session"])
-    @pytest.mark.parametrize("body", MALFORMED, ids=["not json", "missing", "wrong type"])
+def _send(
+    client: httpx.Client, method: str, path: str, body: bytes, headers: dict[str, str]
+) -> httpx.Response:
+    return client.request(
+        method, path, content=body, headers={"Content-Type": "application/json", **headers}
+    )
+
+
+class TestOrderOfRefusals:
+    @pytest.mark.parametrize("headers", NO_SESSION, ids=NO_SESSION_IDS)
     @pytest.mark.parametrize(("method", "path"), WITH_BODY, ids=_ids(WITH_BODY))
-    def test_a_malformed_body_without_a_session(
+    def test_a_body_not_json_without_a_session(
+        self, api: httpx.Client, demo: httpx.Client, method: str, path: str, headers: dict
+    ) -> None:
+        # /accounts/operations/general/first, /operations/general/malformed
+        response = _send(api, method, path.format(**_entities(demo)), b"not json", headers)
+
+        assert_error(response, 400)
+
+    @pytest.mark.parametrize("headers", NO_SESSION, ids=NO_SESSION_IDS)
+    @pytest.mark.parametrize("body", BAD_FIELDS, ids=BAD_FIELDS_IDS)
+    @pytest.mark.parametrize(("method", "path"), WITH_BODY, ids=_ids(WITH_BODY))
+    def test_bad_fields_without_a_session(
         self,
         api: httpx.Client,
         demo: httpx.Client,
         method: str,
         path: str,
         body: bytes,
-        headers: dict[str, str],
+        headers: dict,
     ) -> None:
-        # /accounts/operations/general/first, /operations/general/malformed
-        response = api.request(
-            method,
-            path.format(**_entities(demo)),
-            content=body,
-            headers={"Content-Type": "application/json", **headers},
-        )
+        # /accounts/operations/general/unauthenticated
+        response = _send(api, method, path.format(**_entities(demo)), body, headers)
+
+        assert_error(response, 401)
+
+    @pytest.mark.parametrize("body", MALFORMED, ids=MALFORMED_IDS)
+    @pytest.mark.parametrize(("method", "path"), WITH_BODY, ids=_ids(WITH_BODY))
+    def test_bad_fields_before_an_unknown_id(
+        self, demo: httpx.Client, method: str, path: str, body: bytes
+    ) -> None:
+        # /accounts/operations/general/session, /operations/general/malformed,
+        # /boards/operations/general/unknown
+        unknown = str(uuid.uuid7())
+        ids = {"board": unknown, "column": unknown, "card": unknown}
+
+        assert_error(_send(demo, method, path.format(**ids), body, {}), 400)
+
+    @pytest.mark.parametrize("headers", NO_SESSION, ids=NO_SESSION_IDS)
+    @pytest.mark.parametrize(("method", "path"), WITH_ID, ids=_ids(WITH_ID))
+    def test_no_session_before_an_unknown_id(
+        self, api: httpx.Client, method: str, path: str, headers: dict
+    ) -> None:
+        # /accounts/operations/general/unauthenticated, /boards/operations/general/unknown
+        unknown = str(uuid.uuid7())
+        ids = {"board": unknown, "column": unknown, "card": unknown}
+
+        assert_error(_request(api, method, path, ids, headers=headers), 401)
+
+    @pytest.mark.parametrize("body", MALFORMED, ids=MALFORMED_IDS)
+    @pytest.mark.parametrize(("method", "path"), WITH_BODY, ids=_ids(WITH_BODY))
+    def test_bad_fields_before_another_users_board(
+        self, demo: httpx.Client, other: httpx.Client, method: str, path: str, body: bytes
+    ) -> None:
+        # /operations/general/malformed, /boards/operations/general/owner
+        response = _send(demo, method, path.format(**_entities(other)), body, {})
 
         assert_error(response, 400)

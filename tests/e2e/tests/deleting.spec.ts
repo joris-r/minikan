@@ -166,6 +166,7 @@ for (const { name, open } of places.filter((p) => p.name !== 'a card')) {
 
       await page.keyboard.press('Escape')
 
+      await expect(page.getByRole('dialog')).toHaveCount(0)
       await page.reload()
       await expect(article(page, title)).toBeVisible()
       expect(sent).toEqual([])

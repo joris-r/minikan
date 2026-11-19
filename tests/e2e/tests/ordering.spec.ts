@@ -96,9 +96,16 @@ test.describe('Drag and drop', () => {
     page.on('request', (request) => {
       if (request.url().endsWith('/move')) moves.push(request.url())
     })
+    // Counts the drags the browser starts, so that the test fails if no drag happens.
+    await page.evaluate(() => {
+      const counted = window as unknown as { drags: number }
+      counted.drags = 0
+      document.addEventListener('dragstart', () => counted.drags++, true)
+    })
 
     await dragBack(page, a, b)
     await dragBack(page, x, y)
+    expect(await page.evaluate(() => (window as unknown as { drags: number }).drags)).toBe(2)
 
     await expectOrder(page, board.title, [a, b], [a, b])
     await expect.poll(() => order(page, a, [x, y])).toEqual([x, y])
