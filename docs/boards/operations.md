@@ -8,6 +8,9 @@ A board, column or card, alone, reads
 The inputs `id` and `columnId` name a board, column or card, as the
 operation says.
 
+Once /accounts/operations/general/session and
+/operations/general/malformed accept the request:
+
 - [unknown] An `id` or `columnId` naming no board, column or card of
   that kind: refused, 404, `Not Found`.
 - [owner] A board of another user, and its columns and cards: refused

@@ -18,4 +18,4 @@ Everything the backend stores.
 - `columns: set of /boards/model/column`.
 - `cards: set of /boards/model/card`.
 - [references] The user of each session and board, the board of each
-  column and the column of each card are in the state.
+  column and the column of each card are in the state (not testable).
