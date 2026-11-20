@@ -11,3 +11,10 @@ Shows:
 - [error] an answer other than 200, `API: error`;
 - [unreachable] no answer, `API: unreachable`.
 - [elsewhere] No other screen shows it (not testable).
+
+## Banner
+
+Shows, with the ARIA role `alert`:
+- [message] After a failure: its message, then a "Close" button.
+  - [closed] "Close" clicked, or a later change whose request succeeds:
+    hidden.

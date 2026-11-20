@@ -1,30 +1,15 @@
 # UI
 
-## Header bar
-
-Shows, left to right:
-- [home] "Minikan", a link to the Boards screen;
-- [user] the name of the user of /accounts/operations/show-session,
-  then a "Log out" button;
-- [no-name] Show session failed other than with 401: no name, then the
-  "Log out" button.
-
-Actions:
-- [log-out] "Log out": runs /accounts/operations/log-out.
-  - [ended] Accepted: goes to `/login`.
-  - [failed] Failed other than with 401: the screen stays, and the
-    Banner reads "The logout failed; the session is still open."
-
 ## Boards screen
 
 At `/`.
 
 Shows:
-- [header] the Header bar, above the rest;
+- [header] /accounts/ui/header-bar, then /ui/banner, above the rest;
 - [heading] the heading "Boards";
 - [boards] the boards of /boards/operations/list-boards, each an Item;
 - [add] an icon button labelled "Add board".
-- [load-failed] Its first load failed other than with 401: the Banner
+- [load-failed] Its first load failed other than with 401: /ui/banner
   reads "The boards could not be loaded."
 
 Actions:
@@ -36,14 +21,15 @@ Actions:
 At `/boards/<id>`.
 
 Shows:
-- [header] the Header bar, above the rest;
+- [header] /accounts/ui/header-bar, then /ui/banner, above the rest;
 - [board] the board, an Item, then its columns in order, left to
   right, each an Item, with its cards in order, top to bottom, each an
   Item (layout not testable);
 - [add] an icon button labelled "Add column";
 - [add-card-button] in each column, an icon button labelled "Add card".
-- [load-failed] Its first load failed other than with 401: only the
-  Header bar, and the Banner reads "The board could not be loaded."
+- [load-failed] Its first load failed other than with 401: only
+  /accounts/ui/header-bar, and /ui/banner reads "The board could not be
+  loaded."
 
 Actions:
 - [add-column] "Add column": runs /boards/operations/add-column.
@@ -164,16 +150,5 @@ Actions:
   answers; a creation, once it has answered.
 - [failed] The request of a change, a creation included, failed other
   than with 401: the screen then shown reloads its data from the API,
-  and the Banner reads "The change could not be saved; the screen was
+  and /ui/banner reads "The change could not be saved; the screen was
   reloaded."
-- [unauthenticated] On the Boards and Board screens, any API answer
-  401, the first load included: goes to `/login`, without the Banner.
-
-## Banner
-
-Shows, with the ARIA role `alert`:
-- [place] on the Boards and Board screens, below the Header bar, above
-  the rest;
-- [message] After a failure: its message, then a "Close" button.
-  - [closed] "Close" clicked, or a later change whose request succeeds:
-    hidden.
