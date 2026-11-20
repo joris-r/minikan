@@ -44,7 +44,7 @@ test.describe('Boards screen', () => {
     await expect(page.getByRole('heading', { name: 'Boards', exact: true })).toBeVisible()
   })
 
-  // /boards/ui/header-bar/no-name
+  // /accounts/ui/header-bar/no-name
   test('a failed show session leaves the name out of the header bar', async ({ page }) => {
     await fail(page, 'GET', '**/api/session')
     const answered = page.waitForResponse('**/api/session')
@@ -57,7 +57,7 @@ test.describe('Boards screen', () => {
     await expect(page.getByText('demo', { exact: true })).toHaveCount(0)
   })
 
-  // /boards/ui/banner/place
+  // /boards/ui/boards-screen/header
   test('the banner is below the header bar and above the rest', async ({ page }) => {
     await fail(page, 'GET', /\/api\/boards$/)
 

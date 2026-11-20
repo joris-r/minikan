@@ -43,7 +43,7 @@ test.describe('Login screen', () => {
     await expect(page.getByText('demo', { exact: true })).toBeVisible()
   })
 
-  // /accounts/ui/login-screen/accepted, /boards/ui/header-bar/user
+  // /accounts/ui/login-screen/accepted, /accounts/ui/header-bar/user
   test('the session is of the user who logged in', async ({ page }) => {
     await logIn(page, 'other', 'other-password')
 
@@ -83,7 +83,7 @@ test.describe('Header bar', () => {
     ['boards screen', async () => '/'],
     ['board screen', async () => `/boards/${await newBoard()}`],
   ] as const) {
-    // /boards/ui/header-bar/home, /boards/ui/header-bar/user, /boards/ui/boards-screen/header, /boards/ui/board-screen/header
+    // /accounts/ui/header-bar/home, /accounts/ui/header-bar/user, /boards/ui/boards-screen/header, /boards/ui/board-screen/header
     test(`on the ${screen}, shows "Minikan", the user and "Log out"`, async ({ page }) => {
       await page.goto(await path())
 
@@ -93,7 +93,7 @@ test.describe('Header bar', () => {
     })
   }
 
-  // /boards/ui/header-bar/home, /boards/ui/header-bar/user, /boards/ui/board-screen/header
+  // /accounts/ui/header-bar/home, /accounts/ui/header-bar/user, /boards/ui/board-screen/header
   test('shows "Minikan", the user, then "Log out", left to right, above the board', async ({
     page,
   }) => {
@@ -117,7 +117,7 @@ test.describe('Header bar', () => {
     expect(bottom).toBeLessThanOrEqual((await board.boundingBox())!.y)
   })
 
-  // /boards/ui/header-bar/home
+  // /accounts/ui/header-bar/home
   test('"Minikan" goes to the boards screen', async ({ page }) => {
     await page.goto(`/boards/${await newBoard()}`)
 
@@ -126,7 +126,7 @@ test.describe('Header bar', () => {
     await expect(page).toHaveURL('/')
   })
 
-  // /boards/ui/header-bar/log-out, /boards/ui/header-bar/ended
+  // /accounts/ui/header-bar/log-out, /accounts/ui/header-bar/ended
   test('"Log out" ends the session and goes to the login screen', async ({ page, session }) => {
     await page.goto('/')
 
@@ -136,7 +136,7 @@ test.describe('Header bar', () => {
     expect((await (await apiWith(session!)).get('/api/session')).status()).toBe(401)
   })
 
-  // /boards/ui/header-bar/failed, /boards/ui/banner/message
+  // /accounts/ui/header-bar/failed, /ui/banner/message
   test('a failed "Log out" keeps the screen and the session, with a banner', async ({
     page,
     session,
@@ -156,7 +156,7 @@ test.describe('Header bar', () => {
   test.describe('of another user', () => {
     test.use({ user: 'other' })
 
-    // /boards/ui/header-bar/user
+    // /accounts/ui/header-bar/user
     test('shows the name of that user', async ({ page }) => {
       await page.goto('/')
 
@@ -170,7 +170,7 @@ test.describe('A 401 answer', () => {
   test.describe('without a session', () => {
     test.use({ user: null })
 
-    // /boards/ui/changes/unauthenticated
+    // /accounts/ui/session-ended/unauthenticated
     test('the first load of the boards screen goes to the login screen', async ({ page }) => {
       await page.goto('/')
 
@@ -178,7 +178,7 @@ test.describe('A 401 answer', () => {
       await expect(page.getByRole('alert')).toHaveCount(0)
     })
 
-    // /boards/ui/changes/unauthenticated
+    // /accounts/ui/session-ended/unauthenticated
     test('the first load of the board screen goes to the login screen', async ({ page }) => {
       await page.goto(`/boards/${await newBoard()}`)
 
@@ -187,7 +187,7 @@ test.describe('A 401 answer', () => {
     })
   })
 
-  // /boards/ui/changes/unauthenticated
+  // /accounts/ui/session-ended/unauthenticated
   test('a 401 answer to a change goes to the login screen', async ({ page, session }) => {
     const api = await apiAs('demo')
     const title = uniqueTitle()
@@ -204,7 +204,7 @@ test.describe('A 401 answer', () => {
     await expect(page.getByRole('alert')).toHaveCount(0)
   })
 
-  // /boards/ui/changes/unauthenticated
+  // /accounts/ui/session-ended/unauthenticated
   test('a 401 answer to a change on the boards screen goes to the login screen', async ({
     page,
     session,

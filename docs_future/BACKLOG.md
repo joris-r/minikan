@@ -28,4 +28,3 @@
 - Code: comments still cite Dev43 3 rule IDs (e.g. "R8" in py_litestar boards/services.py, "R9" in ts_vue BoardView.vue); cite the paths of docs/ instead, or drop them.
 - Specification: the message of /operations/general/malformed ("naming the error") is untestable as written; pin down its wording or leave it free.
 - Specification: leave free the order between a malformed body and a missing session (400 or 401), instead of freezing py_litestar's order, so other backends need not reproduce it.
-- Specification: move the app frame (Header bar, Banner, Changes) from boards/ui.md to the top-level ui.md.

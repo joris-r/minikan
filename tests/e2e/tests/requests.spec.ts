@@ -232,7 +232,7 @@ test.describe('A creation is shown once the API has answered', () => {
 
 test.describe('A failed change', () => {
   for (const { name, title, url } of titled) {
-    // /boards/ui/changes/failed, /boards/ui/banner/message
+    // /boards/ui/changes/failed, /ui/banner/message
     test(`renaming a ${name} shows the stored title and the banner`, async ({ page }) => {
       const before = title(await openBoard(page, [1]))
       await fail(page, 'PATCH', url)
@@ -303,7 +303,7 @@ test.describe('A failed change', () => {
     await expect(article(page, board)).toBeVisible()
   })
 
-  // /boards/ui/changes/failed, /boards/ui/banner/message
+  // /boards/ui/changes/failed, /ui/banner/message
   test('creating a column shows the banner and no new column', async ({ page }) => {
     const opened = await openBoard(page, [])
     await fail(page, 'POST', '**/api/boards/*/columns')
@@ -314,7 +314,7 @@ test.describe('A failed change', () => {
     await expect(article(page, opened.board).getByRole('article')).toHaveCount(0)
   })
 
-  // /boards/ui/changes/failed, /boards/ui/banner/message
+  // /boards/ui/changes/failed, /ui/banner/message
   test('creating a board shows the banner', async ({ page }) => {
     await openBoards(page)
     await fail(page, 'POST', '**/api/boards')
@@ -354,7 +354,7 @@ test.describe('A failed change', () => {
 })
 
 test.describe('Changes and failures: the banner', () => {
-  // /boards/ui/banner/message, /boards/ui/banner/closed
+  // /ui/banner/message, /ui/banner/closed
   test('"Close" removes it', async ({ page }) => {
     const card = (await openBoard(page, [1])).columns[0]!.cards[0]!.title
     await fail(page, 'DELETE', '**/api/cards/*')
@@ -366,7 +366,7 @@ test.describe('Changes and failures: the banner', () => {
     await expect(banner(page)).toHaveCount(0)
   })
 
-  // /boards/ui/banner/closed
+  // /ui/banner/closed
   test('a later change whose request succeeds removes it', async ({ page }) => {
     const opened = await openBoard(page, [2])
     const [failing, renamed] = opened.columns[0]!.cards
@@ -379,7 +379,7 @@ test.describe('Changes and failures: the banner', () => {
     await expect(banner(page)).toHaveCount(0)
   })
 
-  // /boards/ui/board-screen/load-failed, /boards/ui/banner/message
+  // /boards/ui/board-screen/load-failed, /ui/banner/message
   test('a failed first load of the board screen', async ({ page }) => {
     const id = await createBoard(await apiAs('demo'), uniqueTitle())
     await fail(page, 'GET', `**/api/boards/${id}`)
@@ -402,7 +402,7 @@ test.describe('Changes and failures: the banner', () => {
     await expect(page.getByRole('button', { name: 'Add column' })).toHaveCount(0)
   })
 
-  // /boards/ui/banner/place
+  // /boards/ui/board-screen/header
   test('on the board screen, the banner is below the header bar and above the board', async ({
     page,
   }) => {
@@ -434,7 +434,7 @@ test.describe('Changes and failures: the banner', () => {
     expect(deletes).toEqual([])
   })
 
-  // /boards/ui/boards-screen/load-failed, /boards/ui/banner/message
+  // /boards/ui/boards-screen/load-failed, /ui/banner/message
   test('a failed first load of the boards screen', async ({ page }) => {
     await fail(page, 'GET', '**/api/boards')
 
