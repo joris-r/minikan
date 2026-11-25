@@ -15,6 +15,9 @@ Once /accounts/operations/general/session and
   that kind: refused, 404, `Not Found`.
 - [owner] A board of another user, and its columns and cards: refused
   as /boards/operations/general/unknown.
+- [clamped] In a move, a position below 1 is taken as 1, and one above
+  N as N, N being the count its cases name; then its [moved] case
+  applies with that position.
 
 ## List boards
 
@@ -116,7 +119,7 @@ Cases, N the number of columns of its board:
   - the column is at that position in its board;
   - the other columns keep their relative order;
   - answers 204.
-- [clamped] Position below 1: as 1; above N: as N.
+- [clamped] /boards/operations/general/clamped applies.
 
 ## Move card
 
@@ -136,4 +139,4 @@ Cases, N the number of cards of that column, the moved card included:
   - the other cards of its former column, and of that column, keep
     their relative order;
   - answers 204.
-- [clamped] Position below 1: as 1; above N: as N.
+- [clamped] /boards/operations/general/clamped applies.

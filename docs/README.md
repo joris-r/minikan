@@ -3,7 +3,8 @@
 - [overview.md](overview.md): what the app is for.
 - [technical.md](technical.md): repository, stack, conventions, tests
   and quality.
-- [design/](design/): mockups of the look, checked by eye.
+- [_design/](_design/): mockups of the look, checked by eye.
+- [security.md](security.md): the threat model.
 - [model.md](model.md): the state, and what all domains share.
 - [operations.md](operations.md): the initial state, the operations
   shared by all domains, and the general rules of the API.
