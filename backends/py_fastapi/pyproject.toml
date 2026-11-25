@@ -1,0 +1,28 @@
+[project]
+name = "minikan-fastapi"
+version = "0.1.0"
+license = "MIT"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi[standard]",
+]
+
+[dependency-groups]
+dev = [
+    "httpx",
+    "pytest",
+    "ruff",
+]
+
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "minikan"
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

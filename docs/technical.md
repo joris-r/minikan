@@ -69,6 +69,10 @@
       accounts/     # User, Session: services, current session and user dependencies, login controllers
       boards/       # Board, Column, Card: services, controllers
     ```
+- `py_fastapi`, partial: Python 3.14, FastAPI, uv, ruff, pytest. It
+  starts with the health check only; its tests are `TestClient` unit
+  tests, and the shared e2e suite does not run against it, as it needs
+  a login.
 - `rs_axum`, frozen: it implements the API as it was before
   `real-auth`. Rust (stable, edition 2024), Axum on Tokio, serde,
   cargo, rustfmt, Clippy. SQLite through SQLx, with plain SQL queries. The
