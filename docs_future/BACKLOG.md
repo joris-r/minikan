@@ -1,33 +1,61 @@
 # Backlog
 
+Each topic is ordered by impact, highest first.
+
+## Product features
+
 - Registration: a sign-up screen and endpoint, with password rules.
-- Security: limit login attempts against brute force.
-- Security: rename the session cookie to `__Host-session` (path `/`), so no other cookie on the host can shadow it (cookie tossing, stale dev cookies on localhost).
 - Sharing boards between users.
 - Real-time updates between clients viewing the same board (needs sharing).
 - Card description and tags, with filtering by tag.
 - Import and export of a board in a todo.txt-like format, with a section per column.
-- Backend py_litestar: services scoped to the current user (provider `statement`) would filter every query by owner, instead of each handler calling `get_owned`.
+
+## Security
+
+- Write the threat model (`specify-existing`).
+- Security: limit login attempts against brute force.
+- Security: rename the session cookie to `__Host-session` (path `/`), so no other cookie on the host can shadow it (cookie tossing, stale dev cookies on localhost).
+- Security: e2e tests that attack the app (IDOR, injection, oversized payloads), then fix what fails.
+
+## Specification
+
+- Specification: the invariants of the model (`[nonempty]`, `[unique]`, `[contiguous]`) and other statements marked `(not testable)` are testable now; test them and drop the markers.
+- Specification: leave free the order between a malformed body and a missing session (400 or 401), instead of freezing py_litestar's order, so other backends need not reproduce it.
+- Specification: the message of /operations/general/malformed ("naming the error") is untestable as written; pin down its wording or leave it free.
+
+## Tests
+
+- Tests e2e: ordering.spec "a column dropped onto an earlier column takes its position" fails intermittently; wait for the drop to settle before asserting.
+- Tests e2e: renaming.spec reloads right after an optimistic rename and can race the PATCH; wait for the response before reloading.
+- Tests: the order and placement statements of the UI (header above the rest, "Actions" right after the title, login message below the form, banner message before "Close") get a test, or are marked layout not testable.
+- Tests: property-based tests (Hypothesis) would check rules such as /boards/operations/general/owner as invariants over generated sequences of API calls.
+- Tests: remove the e2e tests that only repeat what an API test checks.
+
+## Backends and storage
+
 - Backend py_litestar: concurrent moves in the same list can interleave (no locking); needed before sharing.
 - Storage: migrations (Alembic, through Advanced Alchemy), so a schema change reaches an existing database.
 - Storage: whether to enforce title length in the database too (a SQLite `CHECK`), not only in the API.
+- Backend py_litestar: services scoped to the current user (provider `statement`) would filter every query by owner, instead of each handler calling `get_owned`.
 - API contract: a shared OpenAPI file, checked against every backend, would generate the frontends' types.
+
+## Frontends
+
+- Frontend ts_vue: a Banner shown at a successful Log out stays on the Login screen, and the login message sits above the "Log in" button where the specification puts it below.
 - Frontend ts_vue: the board screen's move logic (drag and drop, menu, dialog) would move to a composable, shrinking BoardView; a reload after a failed change should also close the open dialog and drop the dragged item.
 - Frontend ts_vue: the Actions menu declares `role="menu"` but lacks the WAI-ARIA menu button keyboard pattern (arrow keys, focus into the menu on open).
-- Tests: property-based tests (Hypothesis) would check rules such as /boards/operations/general/owner as invariants over generated sequences of API calls.
-- Process: some increments with the roles reversed, where the human writes the Implementation or the Tests and the agent reviews.
+
+## Code hygiene
+
+- Code: comments still cite Dev43 3 rule IDs (e.g. "R8" in py_litestar boards/services.py, "R9" in ts_vue BoardView.vue); cite the paths of docs/ instead, or drop them.
+
+## Learning: more implementations
+
 - Backend java_spring: Spring Boot backend, checked by the shared e2e suite.
 - Backend cs_aspnet: ASP.NET Core backend, checked by the shared e2e suite.
 - Backend py_fastapi: FastAPI backend, the most common Python framework in job offers.
 - Frontend ts_angular: Angular frontend, checked by the shared e2e suite.
-- Security: e2e tests that attack the app (IDOR, injection, oversized payloads), then fix what fails.
-- Tests e2e: renaming.spec reloads right after an optimistic rename and can race the PATCH; wait for the response before reloading.
-- Tests: the order and placement statements of the UI (header above the rest, "Actions" right after the title, login message below the form, banner message before "Close") get a test, or are marked layout not testable.
-- Tests: remove the e2e tests that only repeat what an API test checks.
-- Frontend ts_vue: a Banner shown at a successful Log out stays on the Login screen, and the login message sits above the "Log in" button where the specification puts it below.
-- Code: comments still cite Dev43 3 rule IDs (e.g. "R8" in py_litestar boards/services.py, "R9" in ts_vue BoardView.vue); cite the paths of docs/ instead, or drop them.
-- Specification: the message of /operations/general/malformed ("naming the error") is untestable as written; pin down its wording or leave it free.
-- Specification: leave free the order between a malformed body and a missing session (400 or 401), instead of freezing py_litestar's order, so other backends need not reproduce it.
-- Write the threat model (`specify-existing`).
-- Tests e2e: ordering.spec "a column dropped onto an earlier column takes its position" fails intermittently; wait for the drop to settle before asserting.
-- Specification: the invariants of the model (`[nonempty]`, `[unique]`, `[contiguous]`) and other statements marked `(not testable)` are testable now; test them and drop the markers.
+
+## Process
+
+- Process: some increments with the roles reversed, where the human writes the Implementation or the Tests and the agent reviews.
